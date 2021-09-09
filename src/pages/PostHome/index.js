@@ -4,14 +4,6 @@ import * as Notifications from 'expo-notifications';
 import firebase from '../../config/firebaseconfig';
 import { View, Text } from 'react-native';
 
-Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    }),
-});
-
 export default function PostHome( { route, navigation } ){
 
     const database = firebase.firestore()
@@ -19,6 +11,7 @@ export default function PostHome( { route, navigation } ){
     const [notification, setNotification] = useState(false);
     const notificationListener = useRef();
     const responseListener = useRef();
+
     async function addUserDocument(userId){
         await database.collection("tokens").doc(userId).set({},{merge:true})
         .then(() => {
@@ -74,6 +67,14 @@ export default function PostHome( { route, navigation } ){
     }
 
     useEffect(() => {
+        Notifications.setNotificationHandler({
+            handleNotification: async () => ({
+            shouldShowAlert: true,
+            shouldPlaySound: true,
+            shouldSetBadge: false,
+            }),
+        });
+
         registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
 
         notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
@@ -93,9 +94,8 @@ export default function PostHome( { route, navigation } ){
     useEffect(() => {
         if (expoPushToken === null) return;
         
-        let userId = '4';
-        addUserDocument(userId);
-        addUserDocumentToken(userId);
+        addUserDocument(route.params.userId);
+        addUserDocumentToken(route.params.userId);
     },[expoPushToken]) 
 
     return(

@@ -58,7 +58,8 @@ export default function App() {
           name="PostHome"
           component={PostHome}
           options={{
-            headerTintColor: "red"
+            headerTintColor: "red",
+            headerLeft: null
           }}
         />
       </Stack.Navigator>
