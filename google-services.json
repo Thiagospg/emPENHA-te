@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "369592394902",
+    "project_id": "empenha-te",
+    "storage_bucket": "empenha-te.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:369592394902:android:dc7bedcd72f3837397ceb7",
+        "android_client_info": {
+          "package_name": "com.unicarioca.empenhate"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "369592394902-rhqj3u8d4khtoi6vvsgv0ndt2fpbiv4n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCHuLehvZ6xFZXNjSyFUYA24U9mdtNrMm8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "369592394902-rhqj3u8d4khtoi6vvsgv0ndt2fpbiv4n.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
