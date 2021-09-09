@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         
     },
-    button:{
+    buttonLogin:{
         backgroundColor: "#E0972B",
         width: "72%",
         alignItems: "center",
@@ -56,7 +56,13 @@ const styles = StyleSheet.create({
         padding: 12,
         fontWeight: "bold",
         fontSize: 20
-    }
+    },
+    buttonGoogle:{
+        backgroundColor: "#E0972B",
+        width: "72%",
+        alignItems: "center",
+        borderRadius: 50
+    },
 });
 
 export default styles
