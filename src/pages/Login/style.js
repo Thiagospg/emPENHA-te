@@ -3,16 +3,20 @@ import { StyleSheet } from "react-native";
 const styles = StyleSheet.create({
     container:{
         flex: 1,
-        paddingTop: "30%",
-        backgroundColor: "#fff",
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: "#f9fafd",
+        paddingTop:50
+        
     },
     boxLogo:{
-        alignItems: "center",
-        marginBottom: "10%",
+        width: '100%',
+        alignItems: 'center',
+        marginBottom: "3%",
     },
     imageLogo:{
-        width: "75%", 
-        resizeMode: "contain",
+        width: '78%',
+        resizeMode: 'contain',
     },
     boxInput:{
         alignItems: "center",
@@ -20,14 +24,14 @@ const styles = StyleSheet.create({
     },
     boxInputLogin:{
         flexDirection: "row",
-        width: "70%",
+        width: "90%",
         alignItems: "center",
         justifyContent: "center",    
             
     },
     boxInputPassword:{
         flexDirection: "row",
-        width: "70%",
+        width: "90%",
         justifyContent: "flex-end",
     },
     input:{
@@ -48,21 +52,82 @@ const styles = StyleSheet.create({
     },
     buttonLogin:{
         backgroundColor: "#E0972B",
-        width: "72%",
+        width: "91%",
         alignItems: "center",
-        borderRadius: 50
+        borderRadius: 10,
+        marginBottom: '5%'
     },
     textButton:{
         padding: 12,
         fontWeight: "bold",
-        fontSize: 20
+        fontSize: 20,
+        
     },
     buttonGoogle:{
-        backgroundColor: "#E0972B",
-        width: "72%",
+        backgroundColor: "#DDCED2",
+        width: "60%",
         alignItems: "center",
-        borderRadius: 50
+        borderRadius: 10,
+        margin: '3%',
+        flexDirection: "row",
     },
+    textButtonGoogle:{
+        padding: 5,
+        //fontWeight: "bold",
+        fontSize: 16,
+        color: '#EA4335'
+    },
+    boxButtonGoogle:{
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        flex: 1,
+        
+    },
+    boxGoogleButtonIcon:{
+        paddingLeft:'5%',
+        flex: 0.2
+    },
+    boxButtonGoogleText:{
+        flex: 0.8
+        
+    },
+    buttonFacebook:{
+        backgroundColor: "#DBDDE9",
+        width: "60%",
+        alignItems: "center",
+        borderRadius: 10,
+        margin: 0,
+        flexDirection: "row",
+    },
+    boxButtonFacebook:{
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        flex: 1,
+        
+    },
+    boxFacebookButtonIcon:{
+        paddingLeft:'5%',
+        flex: 0.2
+    },
+    boxButtonFacebookText:{
+        flex: 0.8
+        
+    },
+    textButtonFacebook:{
+        padding: 5,
+        //fontWeight: "bold",
+        fontSize: 16,
+        color: '#097EEB'
+    },
+    boxRegister:{
+        marginTop: '8%',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    textRegister:{
+        fontSize: 16,
+        color: '#139ef8'
+    }
 });
 
 export default styles

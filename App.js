@@ -23,8 +23,17 @@ export default function App() {
           name="Register"
           component={Register}
           options={{
-            headerShown: false,
-          }}
+            headerShown: true,
+            headerTitle: 'Crie uma conta',
+            headerTitleAlign: 'center',
+            headerStyle:{
+              backgroundColor:'#E0972B',
+            },
+            headerTitleStyle:{
+              fontSize: 22
+            },
+          }
+        }
         />
         <Stack.Screen 
           name="Login"

@@ -1,42 +1,49 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './style';
 import firebase from '../../config/firebaseconfig';
 import { Feather } from '@expo/vector-icons';
 import * as Google from 'expo-google-app-auth';
+import { FontAwesome } from '@expo/vector-icons'; 
 import { View, 
          Text, 
          SafeAreaView,
          TextInput,
          Image,
-         TouchableOpacity
+         TouchableOpacity,
+         Alert
         } from 'react-native';
 
-export default function Login({ navigation }){
+export default function Login({ route, navigation }){
 
-    const [login, setLogin] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [passwordVisible, setPasswordVisible] = useState(true);
 
     //Sign in using a simple account created in the app
-    const handleLogin = (login, password) => {
-        firebase.auth().signInWithEmailAndPassword(login, password)
+    const handleLogin = (email, password) => {
+        firebase.auth().signInWithEmailAndPassword(email, password)
         .then((userCredential) => {
-            
             let user = userCredential.user;
-            console.log(user.uid)
-            navigation.navigate("PostHome", {userId: user.uid})
 
+            if (user.emailVerified) {
+                navigation.navigate("PostHome", {userId: user.uid})
+            } else {
+                Alert.alert('Não foi possível entrar', 'O email ainda não foi ativado. Por favor, verifique sua caixa de email para ativar esta conta.')
+            }
+            
         })
         .catch((error) => {
             let errorCode = error.code;
             let errorMessage = error.message;
             
-            if (errorCode === 'auth/invalid-email'){
-                alert('E-mail ou senha incorreto')
-            }else {
-                console.log(errorCode + ' ' + errorMessage);
-            }
+            console.log(errorCode + ' ' + errorMessage);
             
+            switch(errorCode){
+                case 'auth/invalid-email':
+                    Alert.alert('Não foi possível entrar','O email está incorreto');
+                case 'auth/wrong-password':
+                    Alert.alert('Não foi possível entrar','A senha está incorreta');
+            } 
         });
     }
 
@@ -76,7 +83,7 @@ export default function Login({ navigation }){
         } catch (e) {
           return { error: true };
         }
-      }
+      }    
 
     return(
         <SafeAreaView style={styles.container}>
@@ -86,14 +93,14 @@ export default function Login({ navigation }){
                     source={require('../../../assets/logo.png')}
                 />
             </View>
-              
+            
             <View style={styles.boxInput}> 
                 <View style={styles.boxInputLogin}>
                     <TextInput
                         style={styles.input}
-                        placeholder="Login"
-                        value={login}
-                        onChangeText={(val) => setLogin(val)}
+                        placeholder="Email"
+                        value={email}
+                        onChangeText={(val) => setEmail(val)}
                     />
                 </View>
                 <View style={styles.boxInputPassword}>
@@ -118,19 +125,49 @@ export default function Login({ navigation }){
                 </View>
             </View>
 
+            
             <View style={styles.boxButton}>
                 <TouchableOpacity 
-                onPress={() => handleLogin(login, password)}
+                onPress={() => handleLogin(email, password)}
                 style={styles.buttonLogin}>
                     <Text style={styles.textButton}>Entrar</Text>
+                </TouchableOpacity>
+            </View>
+
+            
+            <View style={styles.boxButton}>
+                <TouchableOpacity 
+                onPress={() => signInWithGoogleAsync()}
+                style={styles.buttonGoogle}>
+                    <View style={styles.boxButtonGoogle}>
+                        <View style={styles.boxGoogleButtonIcon}>
+                            <FontAwesome name="google" size={22} color="#EA4335"/>
+                        </View>
+                        <View style={styles.boxButtonGoogleText}>
+                            <Text style={styles.textButtonGoogle}>Entrar com Google</Text>
+                        </View>
+                    </View>
                 </TouchableOpacity>
             </View>
 
             <View style={styles.boxButton}>
                 <TouchableOpacity 
                 onPress={() => signInWithGoogleAsync()}
-                style={styles.buttonGoogle}>
-                    <Text style={styles.textButton}>GOOGLE</Text>
+                style={styles.buttonFacebook}>
+                    <View style={styles.boxButtonFacebook}>
+                        <View style={styles.boxFacebookButtonIcon}>
+                            <FontAwesome name="facebook" size={22} color="#097EEB"/>
+                        </View>
+                        <View style={styles.boxButtonFacebookText}>
+                            <Text style={styles.textButtonFacebook}>Entrar com Facebook</Text>
+                        </View>
+                    </View>
+                </TouchableOpacity>
+            </View>
+
+            <View style={styles.boxRegister}>
+                <TouchableOpacity onPress={() => navigation.navigate("Register")}>
+                    <Text style={styles.textRegister}>Não tem uma conta? Crie uma clicando aqui!</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
