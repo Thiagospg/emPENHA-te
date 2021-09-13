@@ -104,14 +104,13 @@ export default function PostHome( { route, navigation } ){
     },[expoPushToken]) 
 
     useEffect(() =>{
-        database.collection('posts').onSnapshot((query)=>{
+        database.collection('posts').orderBy('createdWhen','desc').onSnapshot((query)=>{
             const list = [];
 
             query.forEach((doc)=> {
                 list.push({...doc.data(), id: doc.id});
             });
             setPost(list);
-            console.log(list)
         });
     },[]);
 
@@ -166,12 +165,13 @@ export default function PostHome( { route, navigation } ){
                 )
             }}
             />
-
-            <TouchableOpacity 
-            style={styles.buttonNewPost}
-            onPress={() => navigation.navigate("NewPost")}>
-                <Text style={styles.iconButton}>+</Text>
-            </TouchableOpacity>
+            <View style={styles.boxButtonNewPost}>
+                <TouchableOpacity 
+                style={styles.buttonNewPost}
+                onPress={() => navigation.navigate("NewPost")}>
+                    <Text style={styles.iconButton}>+</Text>
+                </TouchableOpacity>
+                </View>
         </View>
     )
 }

@@ -4,15 +4,15 @@ const styles = StyleSheet.create({
     container:{
         flex: 1,
         backgroundColor: "#f9fafd",
-        paddingTop:20
         
     },
+    boxButtonNewPost:{
+        alignItems: 'center',
+        padding:30
+    },
     buttonNewPost:{
-        position: 'absolute',
         width: 60,
         height: 60,
-        bottom: 30,
-        right: 20,
         backgroundColor: '#622565',
         borderRadius: 50,
         justifyContent: 'center',
@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
     posts:{
         alignItems: 'center',
         width: '100%',
-        marginTop: 5,
+        marginTop: 30,
     },
     postTitle:{
         alignItems: 'center',
@@ -59,34 +59,36 @@ const styles = StyleSheet.create({
     },
     textPostResume:{
         fontSize: 14,
-        textAlign: 'justify',
+        textAlign: 'left',
         color: '#000',
         
     },
     postFooter:{
+        flex:1,
         width: '90%',
         flexDirection: 'row',
-        justifyContent:'flex-end'
+        justifyContent:'center',
+        paddingTop: 5,
     },
     postFooterDate:{
-        marginLeft: 20,
+        flex: 0.5,
+        marginLeft: 5,
         paddingRight: 15,
-        alignItems: 'center',
-        justifyContent: 'center'
+        alignItems: 'flex-end',
+        justifyContent: 'center',
     },
     textPostFooterDate:{
         fontSize: 13,
-        fontWeight: 'bold'
     },
     postFooterScore:{
+        flex:0.8,
         flexDirection: 'row',
-        marginRight: 50,
+        marginRight: 0,
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'flex-end'
     },
     textPostFooterScore:{
         fontSize: 14,
-        fontWeight: 'bold',
         marginLeft: 5
     }
 });
