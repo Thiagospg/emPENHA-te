@@ -18,7 +18,7 @@ export default function App() {
   
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
+      <Stack.Navigator initialRouteName="PostHome">
         <Stack.Screen 
           name="Register"
           component={Register}
@@ -67,8 +67,12 @@ export default function App() {
           name="PostHome"
           component={PostHome}
           options={{
-            headerTintColor: "red",
-            headerLeft: null
+            headerTitle: 'Postagens',
+            headerTitleAlign: 'center',
+            headerTintColor: '#E0972B',
+            headerTitleStyle:{
+              fontSize: 22
+            },
           }}
         />
       </Stack.Navigator>

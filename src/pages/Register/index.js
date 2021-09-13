@@ -27,9 +27,18 @@ export default function Register({ navigation }){
                 var errorMessage = error.message;
                 console.log(errorCode + ' ' + errorMessage)
                 
-                if (errorCode === 'auth/email-already-in-use') {
-                    Alert.alert('Não foi possível realizar o cadastro','O email informado já está cadastrado. Use-o para fazer o login ou informe outro.')
-                }
+                switch(errorCode){
+                    case 'auth/invalid-email':
+                        Alert.alert('Não foi possível realizar o cadastro', 'O email está incorreto')
+                        break;
+                    case 'auth/email-already-in-use':
+                        Alert.alert('Não foi possível realizar o cadastro','O email informado já está cadastrado. Use-o para fazer o login ou informe outro.')
+                        break;
+                    case 'auth/weak-password':
+                        Alert.alert('Não foi possível realizar o cadastro', 'A senha deve conter no mínimo 6 caracteres')
+                        break;
+                    }
+
             });
         } else {
             Alert.alert('Não foi possível realizar o cadastro','As senhas não são iguais. Digite novamente!')

@@ -3,6 +3,7 @@ import styles from './style';
 import firebase from '../../config/firebaseconfig';
 import { Feather } from '@expo/vector-icons';
 import * as Google from 'expo-google-app-auth';
+import * as Facebook from 'expo-facebook';
 import { FontAwesome } from '@expo/vector-icons'; 
 import { View, 
          Text, 
@@ -41,8 +42,10 @@ export default function Login({ route, navigation }){
             switch(errorCode){
                 case 'auth/invalid-email':
                     Alert.alert('Não foi possível entrar','O email está incorreto');
+                    break;
                 case 'auth/wrong-password':
                     Alert.alert('Não foi possível entrar','A senha está incorreta');
+                    break;
             } 
         });
     }
@@ -83,7 +86,34 @@ export default function Login({ route, navigation }){
         } catch (e) {
           return { error: true };
         }
-      }    
+      }
+      
+      const signUpFacebook = async () => {
+        try {
+          await Facebook.initializeAsync({
+              appId:"215114547266039",
+          });
+          const { type, token } = await Facebook.logInWithReadPermissionsAsync({
+            permissions: ["public_profile", "email"],
+          });
+          if (type === "success") {       
+            const credential = firebase.auth.FacebookAuthProvider.credential(token)
+
+            firebase.auth().signInWithCredential(credential).then(() => {
+                navigation.navigate("PostHome", {userId: firebase.auth().currentUser.uid})
+            }).catch((error) => {
+                var errorCode = error.code;
+                console.log(errorCode)
+
+            });
+          } else {
+            return { cancelled: true };
+          }
+        } catch (e) {
+            return { error: true };
+        }
+      };
+    
 
     return(
         <SafeAreaView style={styles.container}>
@@ -152,7 +182,7 @@ export default function Login({ route, navigation }){
 
             <View style={styles.boxButton}>
                 <TouchableOpacity 
-                onPress={() => signInWithGoogleAsync()}
+                onPress={() => signUpFacebook()}
                 style={styles.buttonFacebook}>
                     <View style={styles.boxButtonFacebook}>
                         <View style={styles.boxFacebookButtonIcon}>

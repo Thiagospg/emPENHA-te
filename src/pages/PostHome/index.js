@@ -2,7 +2,10 @@ import React, { useState, useEffect, useRef} from 'react';
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import firebase from '../../config/firebaseconfig';
-import { View, Text } from 'react-native';
+import moment from "moment";
+import { FontAwesome } from '@expo/vector-icons';
+import { View, Text, FlatList, TouchableOpacity } from 'react-native';
+import styles from './style';
 
 export default function PostHome( { route, navigation } ){
 
@@ -11,6 +14,7 @@ export default function PostHome( { route, navigation } ){
     const [notification, setNotification] = useState(false);
     const notificationListener = useRef();
     const responseListener = useRef();
+    const [post, setPost] = useState([]);
 
     async function addUserDocument(userId){
         await database.collection("tokens").doc(userId).set({},{merge:true})
@@ -51,7 +55,7 @@ export default function PostHome( { route, navigation } ){
         token = (await Notifications.getExpoPushTokenAsync()).data;
         console.log(token);
     } else {
-        alert('Must use physical device for Push Notifications');
+        console.log('Must use physical device for Push Notifications');
     }
 
     if (Platform.OS === 'android') {
@@ -66,6 +70,7 @@ export default function PostHome( { route, navigation } ){
     return token;
     }
 
+    //Notifications
     useEffect(() => {
         Notifications.setNotificationHandler({
             handleNotification: async () => ({
@@ -94,14 +99,79 @@ export default function PostHome( { route, navigation } ){
     useEffect(() => {
         if (expoPushToken === null) return;
         
-        addUserDocument(route.params.userId);
-        addUserDocumentToken(route.params.userId);
+        //addUserDocument(route.params.userId);
+        //addUserDocumentToken(route.params.userId);
     },[expoPushToken]) 
 
+    useEffect(() =>{
+        database.collection('posts').onSnapshot((query)=>{
+            const list = [];
+
+            query.forEach((doc)=> {
+                list.push({...doc.data(), id: doc.id});
+            });
+            setPost(list);
+            console.log(list)
+        });
+    },[]);
+
+//<Text>{route.params.userId}</Text>
     return(
-        <View>
-            <Text>PostHome</Text>
-            <Text>{route.params.userId}</Text>
+        <View style={styles.container}>
+            <FlatList 
+            showsVerticalScrollIndicator={false}
+            data={post}
+            renderItem={( {item} ) => {
+                return(
+                    
+                    <TouchableOpacity
+                    style={styles.posts}
+                    onPress={() => navigation.navigate('PostDetails',
+                    {id: item.id,
+                        title: item.title, 
+                        description: item.description,
+                        date: item.createdWhen,
+                        creatorId: item.createdBy,
+                        score: item.score,
+                    })}
+                    >
+                        <View style={styles.postTitle}>
+                            <Text style={styles.textPostTitle}>
+                                {item.title}
+                            </Text>
+                        </View>
+
+                        <View style={styles.postResume}>
+                            <Text numberOfLines={2} ellipsizeMode="tail" style={styles.textPostResume}>
+                                {item.description}
+                            </Text>
+                        </View>
+
+                        <View style={styles.postFooter}>
+                            <View style={styles.postFooterScore}>
+                                <FontAwesome name="heart" size={18} color="red" />
+                                <Text style={styles.textPostFooterScore}>
+                                    {item.score.length}
+                                </Text>
+                            </View>
+
+                            <View style={styles.postFooterDate}>
+                                <Text style={styles.textPostFooterDate}>
+                                    {moment.unix(item.createdWhen.seconds).format("DD/MM/YYYY")}
+                                </Text>
+                            </View>
+                        </View>
+                    </TouchableOpacity>
+         
+                )
+            }}
+            />
+
+            <TouchableOpacity 
+            style={styles.buttonNewPost}
+            onPress={() => navigation.navigate("NewPost")}>
+                <Text style={styles.iconButton}>+</Text>
+            </TouchableOpacity>
         </View>
     )
 }

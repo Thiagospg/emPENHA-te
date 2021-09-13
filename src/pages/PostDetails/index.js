@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 
-export default function PostDetails(){
+export default function PostDetails({route, navigation}){
     return(
         <View>
-            <Text>PostDetails</Text>
+            <Text>{route.params.score}</Text>
         </View>
     )
 }
