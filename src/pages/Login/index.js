@@ -148,7 +148,7 @@ export default function Login({ route, navigation }){
                         <Text>
                             <Feather 
                                 name={passwordVisible === true ? "eye-off" : "eye"} size={24} 
-                                color="#e0972b"
+                                color="#622565"
                             />
                         </Text>
                     </TouchableOpacity>

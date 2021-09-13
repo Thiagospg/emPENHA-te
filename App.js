@@ -27,7 +27,7 @@ export default function App() {
             headerTitle: 'Crie uma conta',
             headerTitleAlign: 'center',
             headerStyle:{
-              backgroundColor:'#E0972B',
+              backgroundColor:'#622565',
             },
             headerTitleStyle:{
               fontSize: 22
@@ -69,7 +69,7 @@ export default function App() {
           options={{
             headerTitle: 'Postagens',
             headerTitleAlign: 'center',
-            headerTintColor: '#E0972B',
+            headerTintColor: '#622565',
             headerTitleStyle:{
               fontSize: 22
             },

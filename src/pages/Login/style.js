@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
         width: "100%",
         borderBottomWidth: 1,
         marginBottom: 18,
-        borderBottomColor: "#E0972B",
+        borderBottomColor: "#622565",
         fontSize: 20,
         
     },
@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
         
     },
     buttonLogin:{
-        backgroundColor: "#E0972B",
+        backgroundColor: "#622565",
         width: "91%",
         alignItems: "center",
         borderRadius: 10,
@@ -61,6 +61,7 @@ const styles = StyleSheet.create({
         padding: 12,
         fontWeight: "bold",
         fontSize: 20,
+        color: '#e4aae9'
         
     },
     buttonGoogle:{

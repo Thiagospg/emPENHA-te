@@ -149,7 +149,7 @@ export default function PostHome( { route, navigation } ){
 
                         <View style={styles.postFooter}>
                             <View style={styles.postFooterScore}>
-                                <FontAwesome name="heart" size={18} color="red" />
+                                <FontAwesome name="heart" size={18} color="#e4aae9" />
                                 <Text style={styles.textPostFooterScore}>
                                     {item.score.length}
                                 </Text>
