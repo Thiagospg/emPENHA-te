@@ -9,7 +9,7 @@ import styles from './style';
 
 export default function PostHome( { route, navigation } ){
 
-    const database = firebase.firestore()
+    const database = firebase.firestore();
     const [expoPushToken, setExpoPushToken] = useState(null);
     const [notification, setNotification] = useState(false);
     const notificationListener = useRef();
@@ -110,7 +110,9 @@ export default function PostHome( { route, navigation } ){
             query.forEach((doc)=> {
                 list.push({...doc.data(), id: doc.id});
             });
-            setPost(list);
+            if (!query.metadata.hasPendingWrites){
+                setPost(list);
+            }
         });
     },[]);
 
@@ -141,7 +143,7 @@ export default function PostHome( { route, navigation } ){
                         </View>
 
                         <View style={styles.postResume}>
-                            <Text numberOfLines={2} ellipsizeMode="tail" style={styles.textPostResume}>
+                            <Text numberOfLines={10} ellipsizeMode="tail" style={styles.textPostResume}>
                                 {item.description}
                             </Text>
                         </View>
@@ -156,12 +158,11 @@ export default function PostHome( { route, navigation } ){
 
                             <View style={styles.postFooterDate}>
                                 <Text style={styles.textPostFooterDate}>
-                                    {moment.unix(item.createdWhen.seconds).format("DD/MM/YYYY")}
+                                    {moment.unix(item.createdWhen.seconds).format("DD/MM/YYYY HH:mm")}
                                 </Text>
                             </View>
                         </View>
                     </TouchableOpacity>
-         
                 )
             }}
             />

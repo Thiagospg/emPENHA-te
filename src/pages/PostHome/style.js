@@ -8,7 +8,9 @@ const styles = StyleSheet.create({
     },
     boxButtonNewPost:{
         alignItems: 'center',
-        padding:30
+        padding:10,
+        borderTopWidth: 0.3,
+        borderTopColor: '#000'
     },
     buttonNewPost:{
         width: 60,
@@ -33,14 +35,14 @@ const styles = StyleSheet.create({
     postTitle:{
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 10,
+        padding: 15,
         backgroundColor: '#622565',
         borderTopRightRadius: 55,
         borderTopLeftRadius: 5,
         width: '90%'
     },
     textPostTitle:{
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: 'bold',
         textAlign: 'center',
         color: '#f5cec6'
@@ -72,7 +74,6 @@ const styles = StyleSheet.create({
     },
     postFooterDate:{
         flex: 0.5,
-        marginLeft: 5,
         paddingRight: 15,
         alignItems: 'flex-end',
         justifyContent: 'center',
@@ -81,7 +82,7 @@ const styles = StyleSheet.create({
         fontSize: 13,
     },
     postFooterScore:{
-        flex:0.8,
+        flex:0.7,
         flexDirection: 'row',
         marginRight: 0,
         alignItems: 'center',

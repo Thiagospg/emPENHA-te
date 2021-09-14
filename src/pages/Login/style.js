@@ -40,7 +40,6 @@ const styles = StyleSheet.create({
         marginBottom: 18,
         borderBottomColor: "#622565",
         fontSize: 20,
-        
     },
     iconPasswordView:{
         position: "absolute",
@@ -60,8 +59,8 @@ const styles = StyleSheet.create({
     textButton:{
         padding: 12,
         fontWeight: "bold",
-        fontSize: 20,
-        color: '#e4aae9'
+        fontSize: 16,
+        color: '#f5cec6'
         
     },
     buttonGoogle:{
