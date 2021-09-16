@@ -18,7 +18,6 @@ export default function NewPost({navigation}){
                 title: postTitle
             }).then(() => {
                 navigation.navigate('PostHome');
-                Alert.alert('Postagem criada com sucesso','Sua postagem foi criada, agradecemos pela colaboração')
                 
             }).catch((error) => {
                 console.error("Error add document: ", error);
