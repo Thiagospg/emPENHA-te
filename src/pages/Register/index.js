@@ -1,54 +1,107 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import firebase from '../../config/firebaseconfig';
 import { Feather } from '@expo/vector-icons';
 import styles from './style';
-import { View, Text, TextInput, TouchableOpacity, SafeAreaView, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, SafeAreaView, Alert, Animated } from 'react-native';
 
 export default function Register({ navigation }){
     
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [repeatPassword, setRepeatPassword] = useState('')
+    const [radiusAnimated] = useState(new Animated.Value(0))
+    const [opacity] = useState(new Animated.Value(0))
+    const [registerError, setRegisterError] = useState(null)
+
+    const AsyncAlert = () => {
+        return new Promise((resolve, reject) => {
+            Alert.alert(
+                'Title',
+                'Message',
+                [
+                    {text: 'YES', onPress: () => resolve('YES') },
+                    {text: 'NO', onPress: () => resolve('NO') }
+                ],
+                { cancelable: false }
+            )
+        })
+    }    
 
     const handleRegister = (email, password) => {
-        if (password === repeatPassword) {
-            firebase.auth().createUserWithEmailAndPassword(email, password)
-            .then((userCredential) => {
+
+        if (password !== repeatPassword) {
+            setRegisterError('*As senhas não conferem. Digite novamente')
+            return
+        } 
+
+        firebase.auth().createUserWithEmailAndPassword(email, password)
+        .then(async (userCredential) => {
+        
+            var user = userCredential.user;
+            console.log('Registered')
+            user.sendEmailVerification();
+            const userResponse = await AsyncAlert()
+            //Alert.alert('Conta criada com sucesso', 'Por favor, verifique a sua caixa de entrada do email para ativar esta conta.')
+            navigation.navigate("Login")
             
-                var user = userCredential.user;
-                console.log('Registered')
-                user.sendEmailVerification();
-                Alert.alert('Conta criada com sucesso', 'Por favor, verifique a sua caixa de entrada do email para ativar esta conta.')
+        })
+        .catch((error) => {
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            console.log(errorCode + ' ' + errorMessage)
+            
+            switch(errorCode){
+                case 'auth/invalid-email':
+                    setRegisterError('*O email está incorreto')
+                    break;
+                case 'auth/email-already-in-use':
+                    setRegisterError('*O email informado já está cadastrado. Use-o para fazer o login ou informe outro')
+                    break;
+                case 'auth/weak-password':
+                    setRegisterError('*A senha deve conter no mínimo 6 caracteres')
+                    break;
+                }
 
-                navigation.navigate("Login")
-            })
-            .catch((error) => {
-                var errorCode = error.code;
-                var errorMessage = error.message;
-                console.log(errorCode + ' ' + errorMessage)
-                
-                switch(errorCode){
-                    case 'auth/invalid-email':
-                        Alert.alert('Não foi possível realizar o cadastro', 'O email está incorreto')
-                        break;
-                    case 'auth/email-already-in-use':
-                        Alert.alert('Não foi possível realizar o cadastro','O email informado já está cadastrado. Use-o para fazer o login ou informe outro.')
-                        break;
-                    case 'auth/weak-password':
-                        Alert.alert('Não foi possível realizar o cadastro', 'A senha deve conter no mínimo 6 caracteres')
-                        break;
-                    }
-
-            });
-        } else {
-            Alert.alert('Não foi possível realizar o cadastro','As senhas não são iguais. Digite novamente!')
-        }
+        });
     }
-    
 
+    useEffect(() => {
+        Animated.parallel([
+         Animated.timing(
+             radiusAnimated,
+             {
+                 toValue: 150,
+                 duration: 1500,
+                 useNativeDriver: true
+             },
+         ),
+ 
+         Animated.timing(
+             opacity,
+             {
+                 toValue: 1,
+                 duration: 2500,
+                 useNativeDriver: true
+             },
+         )
+        ]).start(); 
+       }, []);
+    
     return(
         <SafeAreaView style={styles.container}>
-            <View style={styles.boxInput}> 
+            <Animated.View style={[styles.viewHeader, {borderBottomEndRadius:radiusAnimated}]}> 
+                    <View style={{flex:0.3}}>
+                        <TouchableOpacity onPress={()=>navigation.navigate('Login')}>
+                            <Feather style={{marginLeft:20}} name="arrow-left" size={25} color='#f5cec6' />
+                        </TouchableOpacity>
+                    </View>
+
+                    <View style={{flex:0.7}}>
+                        <Text style={{fontSize:22,color:'#f5cec6'}}>Crie uma conta</Text>
+                    </View>
+            </Animated.View>
+
+            <Animated.View style={[styles.boxInput,{opacity:opacity}]}> 
                 <View style={styles.boxInputLogin}>
                     <TextInput
                         style={styles.input}
@@ -83,7 +136,15 @@ export default function Register({ navigation }){
                         <Text style={styles.textButton}>Cadastrar</Text>
                     </TouchableOpacity>
                 </View>
-            </View>
+
+                {registerError !== null ?
+                    <View style={styles.boxRegisterError}>
+                        <Text style={styles.textRegisterError}>{registerError}</Text>
+                    </View>
+                : null}
+
+            </Animated.View>
+            <Animated.View style={[styles.viewFooter,{borderTopStartRadius:radiusAnimated}]} /> 
         </SafeAreaView>
     );
 }

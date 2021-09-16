@@ -127,6 +127,16 @@ const styles = StyleSheet.create({
     textRegister:{
         fontSize: 16,
         color: '#139ef8'
+    },
+    boxLoginError:{
+        width:'80%',
+        justifyContent:'center',
+        alignItems:'center',
+        marginBottom:15
+    },
+    textLoginError:{
+        fontSize: 13,
+        color: '#ff0800'
     }
 });
 

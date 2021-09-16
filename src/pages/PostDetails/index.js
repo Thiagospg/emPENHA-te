@@ -1,10 +1,13 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, TextInput, SafeAreaView, ScrollView } from 'react-native';
+import styles from './style';
 
 export default function PostDetails({route, navigation}){
     return(
-        <View>
-            <Text>{route.params.title}</Text>
-        </View>
+        <SafeAreaView style={styles.container}>
+            <ScrollView style={styles.listContainer}>
+                <Text>{route.params.description}</Text>
+            </ScrollView>
+        </SafeAreaView>
     )
 }

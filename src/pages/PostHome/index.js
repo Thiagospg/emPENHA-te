@@ -164,6 +164,10 @@ export default function PostHome( { route, navigation } ){
                         </View>
                     </TouchableOpacity>
                 )
+            
+            }}
+            keyExtractor={(item) => {
+                return item.id;
             }}
             />
             <View style={styles.boxButtonNewPost}>

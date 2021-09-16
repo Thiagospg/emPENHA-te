@@ -1,5 +1,4 @@
 import React from 'react';
-import { Text, View, Button, Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
@@ -11,11 +10,20 @@ import PostDetails from './src/pages/PostDetails';
 import PostHome from './src/pages/PostHome';
 
 export default function App() {
-  
-  
 
   const Stack = createStackNavigator();
-  
+  const config = {
+    animation: 'spring',
+    config: {
+      stiffness: 400,
+      damping: 100,
+      mass: 10,
+      overshootClamping: true,
+      restDisplacementThreshold: 0.01,
+      restSpeedThreshold: 0.01,
+    },
+  };
+
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
@@ -23,14 +31,20 @@ export default function App() {
           name="Register"
           component={Register}
           options={{
-            headerShown: true,
+            animationTypeForReplace:'pop',
+            transitionSpec:{
+              open: config,
+              close:config
+            },
+            headerShown: false,
             headerTitle: 'Crie uma conta',
             headerTitleAlign: 'center',
+            headerTintColor: '#f5cec6',
             headerStyle:{
               backgroundColor:'#622565',
             },
             headerTitleStyle:{
-              fontSize: 22
+              fontSize: 22,
             },
           }
         }
@@ -39,6 +53,7 @@ export default function App() {
           name="Login"
           component={Login}
           options={{
+            animationTypeForReplace:'pop',
             headerShown: false
           }}
         />
@@ -55,7 +70,10 @@ export default function App() {
           options={{
             headerTitle: 'Criação de postagem',
             headerTitleAlign: 'center',
-            headerTintColor: '#622565',
+            headerTintColor: '#f5cec6',
+            headerStyle:{
+              backgroundColor:'#622565',
+            },
             headerTitleStyle:{
               fontSize: 22
             },
@@ -74,10 +92,14 @@ export default function App() {
           options={{
             headerTitle: 'Postagens',
             headerTitleAlign: 'center',
-            headerTintColor: '#622565',
+            headerTintColor: '#f5cec6',
+            headerStyle:{
+              backgroundColor:'#622565',
+            },
             headerTitleStyle:{
               fontSize: 22
             },
+            headerLeft: null,
           }}
         />
       </Stack.Navigator>

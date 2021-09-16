@@ -11,6 +11,9 @@ const styles = StyleSheet.create({
     boxInput:{
         alignItems: "center",
         width: "100%",
+        flex:0.6,
+        justifyContent: 'center',
+        
     },
     boxInputLogin:{
         flexDirection: "row",
@@ -28,7 +31,7 @@ const styles = StyleSheet.create({
         width: "100%",
         borderBottomWidth: 1,
         marginBottom: 18,
-        borderBottomColor: "#E0972B",
+        borderBottomColor: "#622565",
         fontSize: 20,
         
     },
@@ -41,7 +44,7 @@ const styles = StyleSheet.create({
         
     },
     buttonRegister:{
-        backgroundColor: "#E0972B",
+        backgroundColor: "#622565",
         width: "91%",
         alignItems: "center",
         borderRadius: 10,
@@ -50,9 +53,33 @@ const styles = StyleSheet.create({
     textButton:{
         padding: 12,
         fontWeight: "bold",
-        fontSize: 20,
+        fontSize: 16,
+        color: '#f5cec6'
         
     },
+    viewHeader:{
+        flexDirection:'row', 
+        alignItems: 'center',
+        backgroundColor: "#622565", 
+        width:'100%', 
+        flex:0.2,
+    },
+    viewFooter:{
+        alignItems: 'center',
+        justifyContent:'flex-end',
+        backgroundColor: "#622565", 
+        width:'100%', 
+        flex:0.2,
+    },
+    boxRegisterError:{
+        width:'80%',
+        justifyContent:'center',
+        alignItems:'center'
+    },
+    textRegisterError:{
+        fontSize: 13,
+        color: '#ff0800'
+    }
 });
 
 export default styles

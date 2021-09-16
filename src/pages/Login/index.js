@@ -19,19 +19,23 @@ export default function Login({ route, navigation }){
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [passwordVisible, setPasswordVisible] = useState(true);
+    const [loginError, setLoginError] = useState(null)
 
     //Sign in using a simple account created in the app
     const handleLogin = (email, password) => {
+        if (email === null || email === '' || password === null || password === ''){
+            setLoginError('*Preencha os campos corretamente')
+            return
+        }
         firebase.auth().signInWithEmailAndPassword(email, password)
         .then((userCredential) => {
             let user = userCredential.user;
 
-            if (user.emailVerified) {
-                navigation.navigate("PostHome", {userId: user.uid})
-            } else {
-                Alert.alert('Não foi possível entrar', 'O email ainda não foi ativado. Por favor, verifique sua caixa de email para ativar esta conta.')
-            }
-            
+            if (!user.emailVerified) {
+                setLoginError('*O email ainda não foi ativado. Por favor, verifique sua caixa de email para ativar esta conta')
+                return
+            } 
+            navigation.navigate("PostHome", {userId: user.uid})
         })
         .catch((error) => {
             let errorCode = error.code;
@@ -41,10 +45,13 @@ export default function Login({ route, navigation }){
             
             switch(errorCode){
                 case 'auth/invalid-email':
-                    Alert.alert('Não foi possível entrar','O email está incorreto');
+                    setLoginError('*O email está incorreto')
                     break;
                 case 'auth/wrong-password':
-                    Alert.alert('Não foi possível entrar','A senha está incorreta');
+                    setLoginError('*A senha está incorreta')
+                    break;
+                case 'auth/user-not-found':
+                    setLoginError('*Email não cadastrado')
                     break;
             } 
         });
@@ -79,7 +86,6 @@ export default function Login({ route, navigation }){
             firebase.auth().signInWithCredential(credential).then(() => {
                 navigation.navigate("PostHome", {userId: firebase.auth().currentUser.uid})
             });
-            //return result.accessToken;
           } else {
             return { cancelled: true };
           }
@@ -164,7 +170,12 @@ export default function Login({ route, navigation }){
                 </TouchableOpacity>
             </View>
 
-            
+            {loginError !== null ?
+                <View style={styles.boxLoginError}>
+                    <Text style={styles.textLoginError}>{loginError}</Text>
+                </View>
+            : null}
+
             <View style={styles.boxButton}>
                 <TouchableOpacity 
                 onPress={() => signInWithGoogleAsync()}
