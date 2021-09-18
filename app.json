@@ -1,14 +1,15 @@
 {
   "expo": {
-    "name": "empenhate",
+    "name": "emPENHA-te",
     "slug": "empenhate",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#f5cec6"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -17,16 +18,29 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "bundleIdentifier":"com.unicarioca.empenhate",
+      "supportsTablet": true,
+      "userInterfaceStyle": "light",
+      "config":{
+         "googleSignIn":{
+             "reservedClientId":"com.googleusercontent.apps.369592394902-hcsd3lm5tuid9lhki53jd7ndcfie1iam"
+          }
+      }
     },
     "android": {
       "package": "com.unicarioca.empenhate",
       "versionCode": 1,
+      "userInterfaceStyle": "light",
+      "config":{
+        "googleSignIn":{
+           "certificateHash":"AIzaSyA8eYR77pjQE24tUyUBDiJETsDv9z5-OTI"
+        }
+      },
       "googleServicesFile": "./google-services.json",
       "useNextNotificationsApi" : true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
+        "backgroundColor": "#f5cec6"
       }  
     },
     "web": {
