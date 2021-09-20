@@ -22,11 +22,6 @@ const styles = StyleSheet.create({
         justifyContent: "center",    
             
     },
-    boxInputPassword:{
-        flexDirection: "row",
-        width: "90%",
-        justifyContent: "flex-end",
-    },
     input:{
         width: "100%",
         borderBottomWidth: 1,
@@ -40,7 +35,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         
     },
-    buttonRegister:{
+    buttonRedefine:{
         backgroundColor: "#622565",
         width: "91%",
         alignItems: "center",
@@ -68,12 +63,12 @@ const styles = StyleSheet.create({
         width:'100%', 
         flex:0.2,
     },
-    boxRegisterError:{
+    boxRedefineError:{
         width:'80%',
         justifyContent:'center',
         alignItems:'center'
     },
-    textRegisterError:{
+    textRedefineError:{
         fontSize: 13,
         color: '#ff0800'
     }

@@ -16,13 +16,12 @@ export default function Register({ navigation }){
     const AsyncAlert = () => {
         return new Promise((resolve, reject) => {
             Alert.alert(
-                'Title',
-                'Message',
+                'Conta criada',
+                'A conta informada foi criada com sucesso. Verifique a caixa de entrada para ativá-la',
                 [
-                    {text: 'YES', onPress: () => resolve('YES') },
-                    {text: 'NO', onPress: () => resolve('NO') }
+                    {text: 'OK', onPress: () => resolve('OK') },
                 ],
-                { cancelable: false }
+                { cancelable: true }
             )
         })
     }    
@@ -40,10 +39,8 @@ export default function Register({ navigation }){
             var user = userCredential.user;
             console.log('Registered')
             user.sendEmailVerification();
-            const userResponse = await AsyncAlert()
-            //Alert.alert('Conta criada com sucesso', 'Por favor, verifique a sua caixa de entrada do email para ativar esta conta.')
             navigation.navigate("Login")
-            
+            const userResponse = await AsyncAlert()
         })
         .catch((error) => {
             var errorCode = error.code;

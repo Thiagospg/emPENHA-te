@@ -8,6 +8,7 @@ import AboutUS from './src/pages/AboutUS';
 import NewPost from './src/pages/NewPost';
 import PostDetails from './src/pages/PostDetails';
 import PostHome from './src/pages/PostHome';
+import ForgotPassword from './src/pages/ForgotPassword';
 
 export default function App() {
 
@@ -38,6 +39,28 @@ export default function App() {
             },
             headerShown: false,
             headerTitle: 'Crie uma conta',
+            headerTitleAlign: 'center',
+            headerTintColor: '#f5cec6',
+            headerStyle:{
+              backgroundColor:'#622565',
+            },
+            headerTitleStyle:{
+              fontSize: 22,
+            },
+          }
+        }
+        />
+        <Stack.Screen 
+          name="ForgotPassword"
+          component={ForgotPassword}
+          options={{
+            animationTypeForReplace:'pop',
+            transitionSpec:{
+              open: config,
+              close:config
+            },
+            headerShown: false,
+            headerTitle: 'Redefina a senha',
             headerTitleAlign: 'center',
             headerTintColor: '#f5cec6',
             headerStyle:{

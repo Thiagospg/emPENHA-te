@@ -212,11 +212,18 @@ export default function Login({ route, navigation }){
                 </TouchableOpacity>
             </View>
 
-            <View style={styles.boxRegister}>
-                <TouchableOpacity onPress={() => navigation.navigate("Register")}>
-                    <Text style={styles.textRegister}>Não tem uma conta? Crie uma clicando aqui!</Text>
+            <View style={styles.boxForgotPassword}>
+                <TouchableOpacity onPress={() => navigation.navigate("ForgotPassword")}>
+                    <Text style={styles.textLink}>Esqueceu a senha? Clique aqui!</Text>
                 </TouchableOpacity>
             </View>
+
+            <View style={styles.boxRegister}>
+                <TouchableOpacity onPress={() => navigation.navigate("Register")}>
+                    <Text style={styles.textLink}>Não tem uma conta? Crie uma clicando aqui!</Text>
+                </TouchableOpacity>
+            </View>
+
         </SafeAreaView>
     )
 }

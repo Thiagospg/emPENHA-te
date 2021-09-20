@@ -120,11 +120,16 @@ const styles = StyleSheet.create({
         color: '#097EEB'
     },
     boxRegister:{
+        marginTop: '2%',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    boxForgotPassword:{
         marginTop: '8%',
         alignItems: 'center',
         justifyContent: 'center',
     },
-    textRegister:{
+    textLink:{
         fontSize: 16,
         color: '#139ef8'
     },
