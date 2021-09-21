@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useFocusEffect } from "@react-navigation/native";
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import firebase from '../../config/firebaseconfig';
 import moment from "moment";
 import { FontAwesome } from '@expo/vector-icons';
-import { View, Text, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, BackHandler, Alert } from 'react-native';
 import styles from './style';
 
 export default function PostHome( { route, navigation } ){
@@ -116,7 +117,27 @@ export default function PostHome( { route, navigation } ){
         });
     },[]);
 
-//<Text>{route.params.userId}</Text>
+    //BackButton exit app
+    useFocusEffect(
+        useCallback(() => {
+          const onBackPress = () => {
+            Alert.alert("", "Deseja fechar o app?", [
+              {
+                text: "Não",
+                onPress: () => null,
+                style: "cancel"
+              },
+              { text: "Sim", onPress: () => BackHandler.exitApp() }
+            ]);
+            return true;
+          };
+        
+          BackHandler.addEventListener("hardwareBackPress", onBackPress);
+        
+          return () =>
+            BackHandler.removeEventListener("hardwareBackPress", onBackPress); 
+    }, []));
+
     return(
         <View style={styles.container}>
             <FlatList 

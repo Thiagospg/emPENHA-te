@@ -35,7 +35,7 @@ export default function Login({ route, navigation }){
                 setLoginError('*O email ainda não foi ativado. Por favor, verifique sua caixa de email para ativar esta conta')
                 return
             } 
-            navigation.navigate("PostHome", {userId: user.uid})
+            navigation.navigate("PostHome", {userId: user.uid});
         })
         .catch((error) => {
             let errorCode = error.code;
@@ -116,7 +116,6 @@ export default function Login({ route, navigation }){
             }).catch((error) => {
                 var errorCode = error.code;
                 console.log(errorCode)
-
             });
           } else {
             return { cancelled: true };
@@ -126,6 +125,13 @@ export default function Login({ route, navigation }){
         }
       };
     
+      //Auto login based on previously account logged
+        useEffect(()=>{
+            firebase.auth().onAuthStateChanged((user) => {
+                if (user !== null) 
+                    navigation.navigate("PostHome", {userId: user.uid})
+            });
+        },[]);
 
     return(
         <SafeAreaView style={styles.container}>
@@ -223,7 +229,6 @@ export default function Login({ route, navigation }){
                     <Text style={styles.textLink}>Não tem uma conta? Crie uma clicando aqui!</Text>
                 </TouchableOpacity>
             </View>
-
         </SafeAreaView>
     )
 }
