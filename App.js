@@ -106,7 +106,15 @@ export default function App() {
           name="PostDetails"
           component={PostDetails}
           options={{
-            headerTintColor: "red"
+            headerTitle: 'Postagem',
+            headerTitleAlign: 'center',
+            headerTintColor: '#f5cec6',
+            headerStyle:{
+              backgroundColor:'#622565',
+            },
+            headerTitleStyle:{
+              fontSize: 22
+            },
           }}
         />
         <Stack.Screen 

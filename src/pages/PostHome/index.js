@@ -104,6 +104,7 @@ export default function PostHome( { route, navigation } ){
         //addUserDocumentToken(route.params.userId);
     },[expoPushToken]) 
 
+    //Getting posts
     useEffect(() =>{
         database.collection('posts').orderBy('createdWhen','desc').onSnapshot((query)=>{
             const list = [];
