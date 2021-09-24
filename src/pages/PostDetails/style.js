@@ -9,7 +9,38 @@ const styles = StyleSheet.create({
     },
     modalContainer:{
         alignItems:'center',
-        justifyContent:'center'
+        justifyContent:'center',
+        margin:0
+        
+    },
+    modalView:{
+        backgroundColor: '#e4aae9',
+        borderRadius: 15,
+        width: '90%',
+        padding: 15
+    },  
+    modalTextTitle:{
+        fontSize:15,
+        fontWeight: 'bold',
+        color: '#622565',
+        marginTop:3,
+        width:'90%'
+    },
+    modalText:{
+        marginVertical:20
+    },
+    modalReportButton:{
+        padding: 15,
+        borderRadius: 15,
+        width:'100%',
+        alignSelf: 'center',
+        backgroundColor: '#622565'
+    },
+    modalReportButtonText:{
+        fontWeight: 'bold',
+        fontSize:16,
+        textAlign: 'center',
+        color: '#f5cec6'
     },
     boxPostTitle:{
         marginTop:10,

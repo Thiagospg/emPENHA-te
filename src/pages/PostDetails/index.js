@@ -1,5 +1,5 @@
-import  React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, SafeAreaView, ScrollView, FlatList, TouchableOpacity } from 'react-native';
+import  React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, TextInput, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native';
 import styles from './style';
 import firebase from '../../config/firebaseconfig';
 import moment from "moment";
@@ -10,10 +10,48 @@ export default function PostDetails({route, navigation}){
     const database = firebase.firestore();
     const [answer, setAnswer] = useState([]);
     const [isModalVisible, setModalVisible] = useState(false);
+    const [answerItem, setanswerItem] = useState({});
+    const [itemType, setItemType] = useState('');
+    const [alreadyReported, setAlreadyReported] = useState(false);
 
-    const toggleModal = () => {
-        setModalVisible(!isModalVisible);
+    const openModal = async (item,itemType) => {
+        setItemType(itemType);
+        setanswerItem(item);
+
+        await database.collection("posts").doc(route.params.id).collection('answers').doc(item.id).collection('reports').doc(firebase.auth().currentUser.uid).get()
+            .then(function(querySnapshot) {
+                if (querySnapshot.data() !== undefined) {
+                    setAlreadyReported(true)
+                } else {
+                    setAlreadyReported(false) 
+                }
+        });
+        
+        setModalVisible(!isModalVisible);     
     };
+
+    async function reportItem(){
+        if (itemType === 'postagem') {
+            await database.collection("posts").doc(route.params.id).collection('reports').doc(firebase.auth().currentUser.uid).set({
+                reportedWhen: firebase.firestore.FieldValue.serverTimestamp(),
+            }).then(() => {
+                console.log("Document successfully written!");
+            })
+            .catch((error) => {
+                console.error("Error writing document: ", error);
+            });
+        } else {
+            await database.collection("posts").doc(route.params.id).collection('answers').doc(answerItem.id).collection('reports').doc(firebase.auth().currentUser.uid).set({
+                reportedWhen: firebase.firestore.FieldValue.serverTimestamp(),
+            }).then(() => {
+                console.log("Document successfully written!");
+            })
+            .catch((error) => {
+                console.error("Error writing document: ", error);
+            });
+        }    
+        setModalVisible(false);
+    }
 
     useEffect(() =>{
         database.collection('posts').doc(route.params.id).collection('answers').orderBy('createdWhen','desc').onSnapshot((query)=>{
@@ -30,19 +68,30 @@ export default function PostDetails({route, navigation}){
 
     return(
         <SafeAreaView style={styles.container}>
-
+           
             <Modal 
+            coverScreen={false}
             style={styles.modalContainer}
             isVisible={isModalVisible} 
+            animationIn="wobble"
+            animationOut="zoomOut"
             onBackdropPress={() => setModalVisible(false)}
             >
-                <View style={{ backgroundColor: '#e4aae9' }}>
-                <Text>Hello!</Text>
-
-                <TouchableOpacity onPress={toggleModal}><Text>Hide modal</Text></TouchableOpacity> 
+                <View style={styles.modalView}>
+                   <View>
+                        <TouchableOpacity style={{position:'absolute', alignSelf:'flex-end'}} onPress={() => setModalVisible(false)}>
+                            <FontAwesome name="window-close" size={28} color="#622565" />
+                        </TouchableOpacity>
+                    </View>
+                    <Text style={styles.modalTextTitle}>Deseja denunciar a {itemType} abaixo?</Text>
+                    <Text style={styles.modalText}>{itemType === 'postagem' ? route.params.title : answerItem.description}</Text>
+                   
+                    <TouchableOpacity style={styles.modalReportButton} disabled={alreadyReported} onPress={reportItem}>
+                        <Text style={styles.modalReportButtonText}>{alreadyReported ? 'Já denunciada' : 'Denunciar'}</Text>
+                    </TouchableOpacity> 
                 </View>
             </Modal>
-
+           
 
             <View style={styles.boxPostTitle}> 
                 <Text style={styles.textPostTitle}>{route.params.title}</Text>
@@ -61,10 +110,10 @@ export default function PostDetails({route, navigation}){
                 {answer.map((item, index) => (
                     <View key={index}>
                         <View style={styles.boxListAllAnswers}>
-                            <TouchableOpacity style={styles.boxListAnswer} onLongPress={toggleModal}>
+                            <TouchableOpacity style={styles.boxListAnswer} onLongPress={()=>openModal(item,'resposta')}>
                                 <Text style={styles.textListAnswer}>{item.description}</Text>
                             </TouchableOpacity>
-                            
+
                             <View style={styles.boxListAnswerLike}>
                                 <FontAwesome name="heart-o" size={20} color="#e4aae9" />
                                 <Text style={styles.textListAnswerScore}>
