@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
     posts:{
         alignItems: 'center',
         width: '100%',
-        marginTop: 30,
+        marginVertical: 30,
     },
     postTitle:{
         alignItems: 'center',
