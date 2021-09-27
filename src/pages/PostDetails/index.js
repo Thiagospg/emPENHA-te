@@ -94,7 +94,6 @@ export default function PostDetails({route, navigation}){
             });
             if (!query.metadata.hasPendingWrites){
                 setAnswer(list);
-                console.log('entrou aqui')
             }
         });
     },[]);
