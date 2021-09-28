@@ -17,7 +17,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#e4aae9',
         borderRadius: 15,
         width: '90%',
-        padding: 15
+        padding: 15,
+        height: '40%'
     },  
     modalTextTitle:{
         fontSize:15,
@@ -82,13 +83,14 @@ const styles = StyleSheet.create({
     footerAnswer:{
         flexDirection:'row',
         marginBottom:15,
+        maxHeight:80
     },
     boxAnswer:{
         padding:8,
         flex: 0.8,
     },
     textInformation:{
-        paddingLeft:'5%',
+        paddingLeft:8,
         alignSelf:'flex-start',
         color: '#622565',
         fontSize:16
@@ -106,7 +108,10 @@ const styles = StyleSheet.create({
         padding:8,
         alignSelf:'center',
         marginHorizontal:15,
-        backgroundColor:'green'
+        backgroundColor:'#622565',
+        borderRadius: 3,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     boxListAllAnswers:{
         width: '100%',
@@ -142,6 +147,10 @@ const styles = StyleSheet.create({
         fontSize:10,
         borderBottomWidth:0.3,
         borderBottomColor: '#622565'
+    },
+    textAnswerError:{
+        fontSize: 13,
+        color: '#ff0800'
     }
 });
 

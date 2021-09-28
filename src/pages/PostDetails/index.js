@@ -1,18 +1,21 @@
 import  React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, SafeAreaView, ScrollView, TouchableOpacity, Alert, Animated } from 'react-native';
 import styles from './style';
 import firebase from '../../config/firebaseconfig';
 import moment from "moment";
-import { FontAwesome } from '@expo/vector-icons';
+import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import Modal from "react-native-modal";
 
 export default function PostDetails({route, navigation}){
     const database = firebase.firestore();
+    const [answerText, setAnswerText] = useState('');
     const [answer, setAnswer] = useState([]);
     const [isModalVisible, setModalVisible] = useState(false);
     const [answerItem, setAnswerItem] = useState({});
     const [itemType, setItemType] = useState('');
     const [alreadyReported, setAlreadyReported] = useState(false);
+    const [marginAnimated] = useState(new Animated.Value(0))
+    const [answerError, setAnswerError] = useState(null)
 
     //Opening modal
     const openModal = async (item,itemType) => {
@@ -30,6 +33,53 @@ export default function PostDetails({route, navigation}){
         
         setModalVisible(!isModalVisible);     
     };
+
+    async function addAnswer(){
+        Animated.sequence([
+            Animated.timing(
+                marginAnimated,
+                {
+                    toValue: 20,
+                    duration: 200,
+                    useNativeDriver: true
+                },
+            ),
+    
+            Animated.timing(
+                marginAnimated,
+                {
+                    toValue: -10,
+                    duration:200,
+                    useNativeDriver: true
+                },
+            ),
+
+            Animated.timing(
+                marginAnimated,
+                {
+                    toValue: 0,
+                    duration: 250,
+                    useNativeDriver: true
+                },
+            )
+           ]).start(); 
+
+        if (answerText.trim() !== ''){
+            await database.collection("posts").doc(route.params.id).collection('answers').add({
+                createdWhen: firebase.firestore.FieldValue.serverTimestamp(),
+                createdBy: firebase.auth().currentUser.uid,
+                description: answerText,
+                score: []
+            }).then(() => {
+                setAnswerText('');
+                setAnswerError(null);
+            }).catch((error) => {
+                console.error("Error add document: ", error);
+            });
+        } else {
+           setAnswerError('Por favor, digite a sua resposta')
+        }      
+    }
 
     //Report a post or answer
     async function reportItem(){
@@ -116,8 +166,9 @@ export default function PostDetails({route, navigation}){
                         </TouchableOpacity>
                     </View>
                     <Text style={styles.modalTextTitle}>Deseja denunciar a {itemType} abaixo?</Text>
-                    <Text style={styles.modalText}>{itemType === 'postagem' ? route.params.title : answerItem.description}</Text>
-                   
+                    <ScrollView>
+                        <Text style={styles.modalText}>{itemType === 'postagem' ? route.params.title : answerItem.description}</Text>
+                    </ScrollView>
                     <TouchableOpacity style={styles.modalReportButton} disabled={alreadyReported} onPress={reportItem}>
                         <Text style={styles.modalReportButtonText}>{alreadyReported ? 'Já denunciada' : 'Denunciar'}</Text>
                     </TouchableOpacity> 
@@ -150,7 +201,7 @@ export default function PostDetails({route, navigation}){
 
                                 <View style={styles.boxListAnswerLike}>
                                     <TouchableOpacity onPress={() => likeItem(item,'resposta')}>
-                                        <FontAwesome name={item.liked === true ? "heart" : "heart-o"} size={20} color="#622565" />
+                                        <FontAwesome name={item.liked === true ? "heart" : "heart-o"} size={22} color="#622565" />
                                     </TouchableOpacity>
                                     
                                     <Text style={styles.textListAnswerScore}>
@@ -167,18 +218,33 @@ export default function PostDetails({route, navigation}){
                     ))
                 }
             </ScrollView>
-
+            
             <Text style={styles.textInformation}>Deixe uma resposta</Text>
+    
             <View style={styles.footerAnswer}>
             
                 <View style={styles.boxAnswer}>
-                    <TextInput style={styles.textAnswer}/>
+                    <TextInput 
+                        style={styles.textAnswer}
+                        placeholder='Informe a resposta'
+                        onChangeText={setAnswerText}
+                        value={answerText}
+                        multiline={true}
+                        maxLength={350}
+                    />
                 </View>
-                <View style={styles.boxSendAnswer}>
-                    <Text>Enviar</Text>
-                </View>
+                
+                <TouchableOpacity style={styles.boxSendAnswer} onPress={() => addAnswer()}>   
+                   <Animated.View style={{transform:[{translateX:marginAnimated}]}}>
+                        <Ionicons name="send" size={18} color="#f5cec6" />
+                    </Animated.View>
+                </TouchableOpacity>
 
+                
             </View>
+            {answerError !== null ?
+                <Text style={styles.textAnswerError}>{answerError}</Text>
+            : null}
         </SafeAreaView>
     )
 }
