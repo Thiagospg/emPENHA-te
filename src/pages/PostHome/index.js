@@ -4,8 +4,8 @@ import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import firebase from '../../config/firebaseconfig';
 import moment from "moment";
-import { FontAwesome } from '@expo/vector-icons';
-import { View, Text, FlatList, TouchableOpacity, BackHandler, Alert } from 'react-native';
+import { FontAwesome, MaterialIcons, Ionicons } from '@expo/vector-icons';
+import { View, Text, FlatList, TouchableOpacity, BackHandler, Alert, SafeAreaView } from 'react-native';
 import styles from './style';
 
 export default function PostHome( { route, navigation } ){
@@ -71,6 +71,37 @@ export default function PostHome( { route, navigation } ){
     return token;
     }
 
+    const AsyncAlert = () => {
+        return new Promise((resolve, reject) => {
+            Alert.alert(
+                'Logout',
+                'Deseja sair da conta?',
+                [
+                    {text: 'NÃO', onPress: () => resolve('NÃO') },
+                    {text: 'SIM', onPress: () => resolve('SIM') },
+                ],
+                { cancelable: true }
+                
+            )
+        })
+    }
+
+    const handleDeslogin = async () => {
+        const userResponse = await AsyncAlert();
+        
+        if (userResponse === 'SIM') {
+            firebase.auth().signOut().then(() => {
+                navigation.navigate("Login")
+              }).catch((error) => {
+                let errorCode = error.code;
+                let errorMessage = error.message;
+    
+                console.log(errorCode + ' ' + errorMessage);
+              });
+        }
+        
+    }
+
     //Notifications
     useEffect(() => {
         Notifications.setNotificationHandler({
@@ -88,7 +119,7 @@ export default function PostHome( { route, navigation } ){
         });
 
         responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-        alert(response);
+        //alert(response); Call the action when click on notification
         });
 
         return () => {
@@ -100,8 +131,8 @@ export default function PostHome( { route, navigation } ){
     useEffect(() => {
         if (expoPushToken === null) return;
         
-        //addUserDocument(route.params.userId);
-        //addUserDocumentToken(route.params.userId);
+        addUserDocument(route.params.userId);
+        addUserDocumentToken(route.params.userId);
     },[expoPushToken]) 
 
     //Getting posts
@@ -140,7 +171,27 @@ export default function PostHome( { route, navigation } ){
     }, []));
 
     return(
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
+
+            <View style={styles.viewHeader}>
+                <View style={{justifyContent:'center', paddingLeft:15, marginTop:3}}>
+                    <TouchableOpacity activeOpacity={0.6} onPress={() => handleDeslogin()}> 
+                        <MaterialIcons style={{transform: [{rotateY: '180deg'}]}} name="logout" size={26} color="#f5cec6" />    
+                    </TouchableOpacity>
+                </View>
+
+                <View style={styles.boxTextHeader}>
+                    <Text style={styles.textHeader}>Publicações</Text>
+                </View>
+
+                <View style={{justifyContent:'center', paddingRight:15, marginTop:3}}>
+                    <TouchableOpacity activeOpacity={0.6}> 
+                        <Ionicons name="ios-filter" size={24} color="#f5cec6" />    
+                    </TouchableOpacity>
+                </View>
+            </View>
+
+
             <FlatList 
             showsVerticalScrollIndicator={false}
             data={post}
@@ -149,6 +200,7 @@ export default function PostHome( { route, navigation } ){
                     
                     <TouchableOpacity
                     style={styles.posts}
+                    activeOpacity={0.8}
                     onPress={() => navigation.navigate('PostDetails',
                     {id: item.id,
                         title: item.title, 
@@ -194,11 +246,12 @@ export default function PostHome( { route, navigation } ){
             />
             <View style={styles.boxButtonNewPost}>
                 <TouchableOpacity 
+                activeOpacity={0.8}
                 style={styles.buttonNewPost}
                 onPress={() => navigation.navigate("NewPost")}>
                     <Text style={styles.iconButton}>+</Text>
                 </TouchableOpacity>
                 </View>
-        </View>
+        </SafeAreaView>
     )
 }

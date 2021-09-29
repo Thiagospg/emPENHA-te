@@ -1,4 +1,5 @@
 import React from 'react';
+import { TouchableOpacity, Text } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import Register from '../pages/Register';
@@ -74,7 +75,7 @@ function StackRoutes(){
                 component={Login}
                 options={{
                 animationTypeForReplace:'pop',
-                headerShown: false
+                headerShown: false,
                 }}
             />
             <Stack.Screen 
@@ -118,6 +119,7 @@ function StackRoutes(){
                 name="PostHome"
                 component={PostHome}
                 options={{
+                headerShown:false,
                 headerTitle: 'Postagens',
                 headerTitleAlign: 'center',
                 headerTintColor: '#f5cec6',
@@ -126,8 +128,7 @@ function StackRoutes(){
                 },
                 headerTitleStyle:{
                     fontSize: 22
-                },
-                headerLeft: null,
+                }
                 }}
             />
         </Stack.Navigator>

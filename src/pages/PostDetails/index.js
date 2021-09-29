@@ -34,7 +34,7 @@ export default function PostDetails({route, navigation}){
         setModalVisible(!isModalVisible);     
     };
 
-    async function addAnswer(){
+    function animateSendButton(){
         Animated.sequence([
             Animated.timing(
                 marginAnimated,
@@ -63,7 +63,10 @@ export default function PostDetails({route, navigation}){
                 },
             )
            ]).start(); 
+    }
 
+
+    async function addAnswer(){
         if (answerText.trim() !== ''){
             await database.collection("posts").doc(route.params.id).collection('answers').add({
                 createdWhen: firebase.firestore.FieldValue.serverTimestamp(),
@@ -200,7 +203,7 @@ export default function PostDetails({route, navigation}){
                                 </TouchableOpacity>
 
                                 <View style={styles.boxListAnswerLike}>
-                                    <TouchableOpacity onPress={() => likeItem(item,'resposta')}>
+                                    <TouchableOpacity activeOpacity={0.6} onPress={() => likeItem(item,'resposta')}>
                                         <FontAwesome name={item.liked === true ? "heart" : "heart-o"} size={22} color="#622565" />
                                     </TouchableOpacity>
                                     
@@ -231,10 +234,18 @@ export default function PostDetails({route, navigation}){
                         value={answerText}
                         multiline={true}
                         maxLength={350}
+                        returnKeyType='send'
+                        blurOnSubmit = {true}
+                        onSubmitEditing={() => addAnswer()}
                     />
                 </View>
                 
-                <TouchableOpacity style={styles.boxSendAnswer} onPress={() => addAnswer()}>   
+                <TouchableOpacity 
+                    style={styles.boxSendAnswer} 
+                    activeOpacity={0.8}
+                    onPress={() => addAnswer()} 
+                    onPressOut={() => animateSendButton()}
+                >   
                    <Animated.View style={{transform:[{translateX:marginAnimated}]}}>
                         <Ionicons name="send" size={18} color="#f5cec6" />
                     </Animated.View>

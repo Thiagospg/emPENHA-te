@@ -57,17 +57,6 @@ export default function Login({ route, navigation }){
         });
     }
 
-    const handleDeslogin = () => {
-        firebase.auth().signOut().then(() => {
-            alert('Deslogado com sucesso')
-          }).catch((error) => {
-            let errorCode = error.code;
-            let errorMessage = error.message;
-
-            console.log(errorCode + ' ' + errorMessage);
-          });
-    }
-
     //Sign in using a Google account
     async function signInWithGoogleAsync() {
         //ExpoGo Id's

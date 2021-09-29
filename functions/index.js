@@ -5,24 +5,24 @@ const fetch = require("node-fetch");
 admin.initializeApp();
 const db = admin.firestore();
 
-//Function para enviar notificação de push ao inserir uma postagem
-exports.sendPushNotification = functions.firestore.document('postagens/{postagemId}/answers/{answerId}').onCreate(async (snap, context) => {
-    const postId = context.params.postagemId
+//Function to send notifications for new answers to the creator of a post
+exports.sendPushNotification = functions.firestore.document('posts/{postId}/answers/{answerId}').onCreate(async (snap, context) => {
+    const postId = context.params.postId
 
-    const post = await db.collection("postagens").doc(postId).get();
+    const post = await db.collection("posts").doc(postId).get();
 
     if (post.exists) {  
-        const uidCriador = post.data().uidCriador;
+        const createdBy = post.data().createdBy;
 
         try {
-            const doc = await db.collection("tokens").doc(uidCriador).get();
+            const doc = await db.collection("tokens").doc(createdBy).get();
             if (doc.exists) {
                 doc.data().tokens.forEach((token) => {
                     let messages = []
                     
                     messages.push({
                         "to": token,
-                        "body": "New Note Added"
+                        "body": "Nova resposta publicada na sua postagem: " + post.data().title
                     });
 
                     fetch('https://exp.host/--/api/v2/push/send', {

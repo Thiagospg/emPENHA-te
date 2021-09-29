@@ -91,7 +91,24 @@ const styles = StyleSheet.create({
     textPostFooterScore:{
         fontSize: 14,
         marginLeft: 5
-    }
+    },
+    viewHeader:{
+        alignItems: 'center',
+        backgroundColor: "#622565", 
+        height:60,
+        alignItems:'center',
+        flexDirection: 'row',
+    },
+    boxTextHeader:{
+        width: '80%',
+    
+    },
+    textHeader:{
+        textAlign:'center',
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: '#f5cec6',
+    },
 });
 
 export default styles
