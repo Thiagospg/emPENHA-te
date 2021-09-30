@@ -115,11 +115,22 @@ export default function PostHome( { route, navigation } ){
         registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
 
         notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-        setNotification(notification);
+            setNotification(notification);
         });
 
         responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-        //alert(response); Call the action when click on notification
+            //console.log(response.notification.request.content.data); 
+            const item = response.notification.request.content.data;
+            
+            navigation.navigate('PostDetails',
+                    {
+                        id: item.id,
+                        title: item.title, 
+                        description: item.description,
+                        date: item.date,
+                        creatorId: item.creatorId,
+                        score: item.score,
+                    });
         });
 
         return () => {

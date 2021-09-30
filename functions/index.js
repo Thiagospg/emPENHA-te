@@ -8,38 +8,55 @@ const db = admin.firestore();
 //Function to send notifications for new answers to the creator of a post
 exports.sendPushNotification = functions.firestore.document('posts/{postId}/answers/{answerId}').onCreate(async (snap, context) => {
     const postId = context.params.postId
-
     const post = await db.collection("posts").doc(postId).get();
 
-    if (post.exists) {  
-        const createdBy = post.data().createdBy;
+    const answerId = context.params.answerId
+    const answer = await db.collection("posts").doc(postId).collection("answers").doc(answerId).get();
+    
+    if (post.exists && answer.exists) {  
+        const postCreatedBy = post.data().createdBy;
+        const answerCreatedBy = answer.data().createdBy;
 
-        try {
-            const doc = await db.collection("tokens").doc(createdBy).get();
-            if (doc.exists) {
-                doc.data().tokens.forEach((token) => {
-                    let messages = []
-                    
-                    messages.push({
-                        "to": token,
-                        "body": "Nova resposta publicada na sua postagem: " + post.data().title
-                    });
+        if (postCreatedBy !== answerCreatedBy) {
+            try {
+                const doc = await db.collection("tokens").doc(postCreatedBy).get();
+                if (doc.exists) {
+                    doc.data().tokens.forEach((token) => {
+                        let messages = []
+                        
+                        messages.push({
+                            "to": token,
+                            "priority": "high",
+                            "sound": "default",
+                            "title": "Resposta publicada",
+                            "data": { 
+                                "id": postId,
+                                "title": post.data().title, 
+                                "description": post.data().description,
+                                "date": post.data().createdWhen,
+                                "creatorId": post.data().createdBy,
+                                "score": post.data().score,
+                            },
+                            "channelId": "chat-messages",
+                            "body": "Uma nova resposta foi publicada na sua postagem de título: " + post.data().title
+                        });
 
-                    fetch('https://exp.host/--/api/v2/push/send', {
-                        method: "POST",
-                        headers: {
-                            "Accept": "application/json",
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify(messages)
+                        fetch('https://exp.host/--/api/v2/push/send', {
+                            method: "POST",
+                            headers: {
+                                "Accept": "application/json",
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify(messages)
+                        });
                     });
-                });
-            } else {
-                console.log("No such token document!");
-                }
-        } catch (error) {
-            functions.logger.log("Error getting token document:", error);
-        } 
+                } else {
+                    console.log("No such token document!");
+                    }
+            } catch (error) {
+                functions.logger.log("Error getting token document:", error);
+                } 
+        }
     } else {
             console.log("No such post document!");
         } 

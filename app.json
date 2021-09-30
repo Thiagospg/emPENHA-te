@@ -6,6 +6,9 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "notification": {
+      "icon":"./assets/icon_notification.png",
+    },
     "splash": {
       "image": "./assets/splash_2.png",
       "resizeMode": "contain",
@@ -38,6 +41,7 @@
       },
       "googleServicesFile": "./google-services.json",
       "useNextNotificationsApi" : true,
+      "permissions": ["RECEIVE_BOOT_COMPLETED"],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
