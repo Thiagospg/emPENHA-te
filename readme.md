@@ -38,6 +38,7 @@
 
 - React Native
 - Node.js
+- Expo
 - Firebase
 - Badwords
 - Compromise
