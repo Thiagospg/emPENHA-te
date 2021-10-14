@@ -104,6 +104,7 @@ function StackRoutes(){
                 name="PostDetails"
                 component={PostDetails}
                 options={{
+                    headerShown:false,
                 headerTitle: 'Postagem',
                 headerTitleAlign: 'center',
                 headerTintColor: '#f5cec6',
@@ -118,18 +119,7 @@ function StackRoutes(){
             <Stack.Screen 
                 name="PostHome"
                 component={PostHome}
-                options={{
-                headerShown:false,
-                headerTitle: 'Postagens',
-                headerTitleAlign: 'center',
-                headerTintColor: '#f5cec6',
-                headerStyle:{
-                    backgroundColor:'#622565',
-                },
-                headerTitleStyle:{
-                    fontSize: 22
-                }
-                }}
+                options={{ headerShown:false }}
             />
         </Stack.Navigator>
     )

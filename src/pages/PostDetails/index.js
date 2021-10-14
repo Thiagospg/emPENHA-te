@@ -1,24 +1,26 @@
 import  React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, SafeAreaView, ScrollView, TouchableOpacity, Alert, Animated } from 'react-native';
-import styles from './style';
+import { FontAwesome, Ionicons, Feather } from '@expo/vector-icons';
 import firebase from '../../config/firebaseconfig';
-import moment from "moment";
-import { FontAwesome, Ionicons } from '@expo/vector-icons';
+import Header from '../../components/Header';
 import Modal from "react-native-modal";
+import moment from "moment";
+import styles from './style';
 
 export default function PostDetails({route, navigation}){
     const database = firebase.firestore();
     const [answerText, setAnswerText] = useState('');
     const [answer, setAnswer] = useState([]);
-    const [isModalVisible, setModalVisible] = useState(false);
+    const [isModalReportVisible, setIsModalReportVisible] = useState(false);
+    const [isModalMenuVisible, setIsModalMenuVisible] = useState(false);
     const [answerItem, setAnswerItem] = useState({});
     const [itemType, setItemType] = useState('');
     const [alreadyReported, setAlreadyReported] = useState(false);
     const [marginAnimated] = useState(new Animated.Value(0))
     const [answerError, setAnswerError] = useState(null)
 
-    //Opening modal
-    const openModal = async (item,itemType) => {
+    //Opening modal report
+    const openModalReport = async (item,itemType) => {
         setItemType(itemType);
         setAnswerItem(item);
 
@@ -31,7 +33,12 @@ export default function PostDetails({route, navigation}){
                 }
         });
         
-        setModalVisible(!isModalVisible);     
+        setIsModalReportVisible(!isModalReportVisible);     
+    };
+
+    //Opening modal menu
+    const openModalMenu = () => {
+        setIsModalMenuVisible(!isModalMenuVisible);     
     };
 
     function animateSendButton(){
@@ -105,7 +112,7 @@ export default function PostDetails({route, navigation}){
                 console.error("Error writing document: ", error);
             });
         }    
-        setModalVisible(false);
+        setIsModalReportVisible(false);
     }
 
     //Like a post or answer
@@ -154,17 +161,19 @@ export default function PostDetails({route, navigation}){
     return(
         <SafeAreaView style={styles.container}>
            
+           <Header leftIcon={'arrow-left'} rightIcon={'menu'} title={'Publicação'} leftAction={() => navigation.goBack()} rightAction={()=>openModalMenu()} />
+
             <Modal 
             coverScreen={false}
             style={styles.modalContainer}
-            isVisible={isModalVisible} 
+            isVisible={isModalReportVisible} 
             animationIn="wobble"
             animationOut="zoomOut"
-            onBackdropPress={() => setModalVisible(false)}
+            onBackdropPress={() => setIsModalReportVisible(false)}
             >
                 <View style={styles.modalView}>
                    <View>
-                        <TouchableOpacity style={{position:'absolute', alignSelf:'flex-end'}} onPress={() => setModalVisible(false)}>
+                        <TouchableOpacity style={{position:'absolute', alignSelf:'flex-end'}} onPress={() => setIsModalReportVisible(false)}>
                             <FontAwesome name="window-close" size={28} color="#622565" />
                         </TouchableOpacity>
                     </View>
@@ -177,8 +186,36 @@ export default function PostDetails({route, navigation}){
                     </TouchableOpacity> 
                 </View>
             </Modal>
-           
 
+
+            <Modal 
+            style={{marginRight:4}}
+            isVisible={isModalMenuVisible} 
+            animationIn="wobble"
+            animationOut="zoomOut"
+            onBackdropPress={() => setIsModalMenuVisible(false)}
+            >
+                <SafeAreaView style={{flex: 1, alignItems: 'flex-end'}}>
+                    <View style={{height:'50%',width:'50%',backgroundColor: 'white'}}>
+                        <Text>Teste</Text>
+                    </View>
+                </SafeAreaView>
+            </Modal>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+           
             <View style={styles.boxPostTitle}> 
                 <Text style={styles.textPostTitle}>{route.params.title}</Text>
             </View>
@@ -198,7 +235,7 @@ export default function PostDetails({route, navigation}){
                     answer.map((item, index) => (
                         <View key={index}>
                             <View style={styles.boxListAllAnswers}>
-                                <TouchableOpacity style={styles.boxListAnswer} onLongPress={()=>openModal(item,'resposta')}>
+                                <TouchableOpacity style={styles.boxListAnswer} onLongPress={()=>openModalReport(item,'resposta')}>
                                     <Text style={styles.textListAnswer}>{item.description}</Text>
                                 </TouchableOpacity>
 

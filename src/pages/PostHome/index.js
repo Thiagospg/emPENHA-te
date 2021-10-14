@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { View, Text, FlatList, TouchableOpacity, BackHandler, Alert, SafeAreaView } from 'react-native';
 import { useFocusEffect } from "@react-navigation/native";
-import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import firebase from '../../config/firebaseconfig';
+import { FontAwesome } from '@expo/vector-icons';
+import Header from '../../components/Header';
+import Constants from 'expo-constants';
 import moment from "moment";
-import { FontAwesome, MaterialIcons, Ionicons } from '@expo/vector-icons';
-import { View, Text, FlatList, TouchableOpacity, BackHandler, Alert, SafeAreaView } from 'react-native';
 import styles from './style';
 
 export default function PostHome( { route, navigation } ){
@@ -16,6 +17,21 @@ export default function PostHome( { route, navigation } ){
     const notificationListener = useRef();
     const responseListener = useRef();
     const [post, setPost] = useState([]);
+
+    const handleDeslogin = async () => {
+        const userResponse = await AsyncAlert();
+        
+        if (userResponse === 'SIM') {
+            firebase.auth().signOut().then(() => {
+                navigation.navigate("Login")
+              }).catch((error) => {
+                let errorCode = error.code;
+                let errorMessage = error.message;
+    
+                console.log(errorCode + ' ' + errorMessage);
+              });
+        }
+    }
 
     async function addUserDocument(userId){
         await database.collection("tokens").doc(userId).set({},{merge:true})
@@ -84,22 +100,6 @@ export default function PostHome( { route, navigation } ){
                 
             )
         })
-    }
-
-    const handleDeslogin = async () => {
-        const userResponse = await AsyncAlert();
-        
-        if (userResponse === 'SIM') {
-            firebase.auth().signOut().then(() => {
-                navigation.navigate("Login")
-              }).catch((error) => {
-                let errorCode = error.code;
-                let errorMessage = error.message;
-    
-                console.log(errorCode + ' ' + errorMessage);
-              });
-        }
-        
     }
 
     //Notifications
@@ -184,77 +184,61 @@ export default function PostHome( { route, navigation } ){
     return(
         <SafeAreaView style={styles.container}>
 
-            <View style={styles.viewHeader}>
-                <View style={{justifyContent:'center', paddingLeft:15, marginTop:3}}>
-                    <TouchableOpacity activeOpacity={0.6} onPress={() => handleDeslogin()}> 
-                        <MaterialIcons style={{transform: [{rotateY: '180deg'}]}} name="logout" size={26} color="#f5cec6" />    
-                    </TouchableOpacity>
-                </View>
-
-                <View style={styles.boxTextHeader}>
-                    <Text style={styles.textHeader}>Publicações</Text>
-                </View>
-
-                <View style={{justifyContent:'center', paddingRight:15, marginTop:3}}>
-                    <TouchableOpacity activeOpacity={0.6}> 
-                        <Ionicons name="ios-filter" size={24} color="#f5cec6" />    
-                    </TouchableOpacity>
-                </View>
-            </View>
-
+            <Header leftIcon={'filter'} rightIcon={'log-out'} title={'Publicações'} leftAction={null} rightAction={() => handleDeslogin()} />
 
             <FlatList 
+            keyExtractor={(item) => { return item.id; }}
             showsVerticalScrollIndicator={false}
             data={post}
             renderItem={( {item} ) => {
                 return(
-                    
-                    <TouchableOpacity
-                    style={styles.posts}
-                    activeOpacity={0.8}
-                    onPress={() => navigation.navigate('PostDetails',
-                    {id: item.id,
-                        title: item.title, 
-                        description: item.description,
-                        date: item.createdWhen,
-                        creatorId: item.createdBy,
-                        score: item.score,
-                    })}
-                    >
-                        <View style={styles.postTitle}>
-                            <Text style={styles.textPostTitle}>
-                                {item.title}
-                            </Text>
-                        </View>
-
-                        <View style={styles.postResume}>
-                            <Text numberOfLines={10} ellipsizeMode="tail" style={styles.textPostResume}>
-                                {item.description}
-                            </Text>
-                        </View>
-
-                        <View style={styles.postFooter}>
-                            <View style={styles.postFooterScore}>
-                                <FontAwesome name="heart" size={18} color="#e4aae9" />
-                                <Text style={styles.textPostFooterScore}>
-                                    {item.score.length}
+                    <View>
+                        <TouchableOpacity
+                        style={styles.posts}
+                        activeOpacity={0.8}
+                        onPress={() => navigation.navigate('PostDetails',
+                        {id: item.id,
+                            title: item.title, 
+                            description: item.description,
+                            date: item.createdWhen,
+                            creatorId: item.createdBy,
+                            score: item.score,
+                        })}
+                        >
+                            <View style={styles.postTitle}>
+                                <Text style={styles.textPostTitle}>
+                                    {item.title}
                                 </Text>
                             </View>
 
-                            <View style={styles.postFooterDate}>
-                                <Text style={styles.textPostFooterDate}>
-                                    {moment.unix(item.createdWhen.seconds).format("DD/MM/YYYY HH:mm")}
+                            <View style={styles.postResume}>
+                                <Text numberOfLines={10} ellipsizeMode="tail" style={styles.textPostResume}>
+                                    {item.description}
                                 </Text>
                             </View>
-                        </View>
-                    </TouchableOpacity>
+                        </TouchableOpacity>
+
+                        
+                            <View style={styles.postFooter}>
+                                <TouchableOpacity style={styles.postFooterScore}>
+                                    <FontAwesome name="heart-o" size={25} color="#622565" />
+                                    <Text style={styles.textPostFooterScore}>
+                                        {item.score.length}
+                                    </Text>
+                                </TouchableOpacity>
+
+                                <View style={styles.postFooterDate}>
+                                    <Text style={styles.textPostFooterDate}>
+                                        {moment.unix(item.createdWhen.seconds).format("DD/MM/YYYY HH:mm")}
+                                    </Text>
+                                </View>
+                            </View>
+                        
+                    </View>
                 )
-            
-            }}
-            keyExtractor={(item) => {
-                return item.id;
             }}
             />
+
             <View style={styles.boxButtonNewPost}>
                 <TouchableOpacity 
                 activeOpacity={0.8}

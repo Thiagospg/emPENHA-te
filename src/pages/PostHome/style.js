@@ -9,8 +9,6 @@ const styles = StyleSheet.create({
     boxButtonNewPost:{
         alignItems: 'center',
         padding:10,
-        borderTopWidth: 0.3,
-        borderTopColor: '#000'
     },
     buttonNewPost:{
         width: 60,
@@ -30,7 +28,7 @@ const styles = StyleSheet.create({
     posts:{
         alignItems: 'center',
         width: '100%',
-        marginVertical: 30,
+        marginVertical: 15,
     },
     postTitle:{
         alignItems: 'center',
@@ -69,8 +67,10 @@ const styles = StyleSheet.create({
         flex:1,
         width: '90%',
         flexDirection: 'row',
-        justifyContent:'center',
-        paddingTop: 5,
+        paddingBottom: 10, 
+        marginBottom:15,
+        borderBottomWidth: 0.2,
+        alignSelf:'center',
     },
     postFooterDate:{
         flex: 0.5,
@@ -92,23 +92,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
         marginLeft: 5
     },
-    viewHeader:{
-        alignItems: 'center',
-        backgroundColor: "#622565", 
-        height:60,
-        alignItems:'center',
-        flexDirection: 'row',
-    },
-    boxTextHeader:{
-        width: '80%',
     
-    },
-    textHeader:{
-        textAlign:'center',
-        fontSize: 22,
-        fontWeight: 'bold',
-        color: '#f5cec6',
-    },
 });
 
 export default styles

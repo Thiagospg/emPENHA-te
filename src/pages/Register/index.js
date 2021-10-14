@@ -88,7 +88,7 @@ export default function Register({ navigation }){
         <SafeAreaView style={styles.container}>
             <Animated.View style={[styles.viewHeader, {borderBottomEndRadius:radiusAnimated}]}> 
                     <View style={{flex:0.3}}>
-                        <TouchableOpacity onPress={()=>navigation.navigate('Login')}>
+                        <TouchableOpacity onPress={()=>navigation.goBack()}>
                             <Feather style={{marginLeft:20}} name="arrow-left" size={25} color='#f5cec6' />
                         </TouchableOpacity>
                     </View>

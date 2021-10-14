@@ -3,9 +3,7 @@ import { StyleSheet } from "react-native";
 const styles = StyleSheet.create({
     container:{
         flex: 1,
-        alignItems: 'center',
         backgroundColor: '#f9fafd',
-        padding: 8,    
     },
     modalContainer:{
         alignItems:'center',
@@ -58,8 +56,9 @@ const styles = StyleSheet.create({
     boxPostContent:{
         marginBottom: 20,
         marginTop: 10,
-        width:'95%',
+        width:'100%',
         borderColor: '#622565',
+        paddingHorizontal: 15
     },
     textBorderContent:{
         margin:15,
@@ -83,15 +82,15 @@ const styles = StyleSheet.create({
     footerAnswer:{
         flexDirection:'row',
         marginBottom:15,
-        maxHeight:80
+        paddingHorizontal:10
     },
     boxAnswer:{
         padding:8,
         flex: 0.8,
+        
     },
     textInformation:{
-        paddingLeft:8,
-        alignSelf:'flex-start',
+        paddingHorizontal:18,
         color: '#622565',
         fontSize:16
     },
@@ -107,7 +106,7 @@ const styles = StyleSheet.create({
         flex:0.2,
         padding:8,
         alignSelf:'center',
-        marginHorizontal:15,
+        marginHorizontal:8,
         backgroundColor:'#622565',
         borderRadius: 3,
         alignItems: 'center',
@@ -150,8 +149,9 @@ const styles = StyleSheet.create({
     },
     textAnswerError:{
         fontSize: 13,
-        color: '#ff0800'
-    }
+        color: '#ff0800',
+        textAlign: 'center'
+    },
 });
 
 export default styles;
