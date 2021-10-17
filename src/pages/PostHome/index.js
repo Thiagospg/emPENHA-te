@@ -102,6 +102,31 @@ export default function PostHome( { route, navigation } ){
         })
     }
 
+    //Like a post or answer
+    async function likeItem(item){
+        if (item.liked) {
+            await database.collection("posts").doc(item.id).update({
+                score: firebase.firestore.FieldValue.arrayRemove(firebase.auth().currentUser.uid)
+            })
+            .then(() => {
+                console.log("Document successfully removed!");
+            })
+            .catch((error) => {
+                console.error("Error removing document: ", error);
+            });
+        }else {
+            await database.collection("posts").doc(item.id).update({
+                score: firebase.firestore.FieldValue.arrayUnion(firebase.auth().currentUser.uid)
+            })
+            .then(() => {
+                console.log("Document successfully written!");
+            })
+            .catch((error) => {
+                console.error("Error writing document: ", error);
+            });
+        }
+    }
+
     //Notifications
     useEffect(() => {
         Notifications.setNotificationHandler({
@@ -148,11 +173,11 @@ export default function PostHome( { route, navigation } ){
 
     //Getting posts
     useEffect(() =>{
-        database.collection('posts').orderBy('createdWhen','desc').onSnapshot((query)=>{
+        database.collection('posts').orderBy('createdWhen','desc').onSnapshot({ includeMetadataChanges: true },(query)=>{
             const list = [];
 
             query.forEach((doc)=> {
-                list.push({...doc.data(), id: doc.id});
+                list.push({...doc.data(), id: doc.id, liked: doc.data().score.includes(firebase.auth().currentUser.uid) ? true : false});
             });
             if (!query.metadata.hasPendingWrites){
                 setPost(list);
@@ -203,6 +228,7 @@ export default function PostHome( { route, navigation } ){
                             date: item.createdWhen,
                             creatorId: item.createdBy,
                             score: item.score,
+                            liked: item.liked
                         })}
                         >
                             <View style={styles.postTitle}>
@@ -219,20 +245,20 @@ export default function PostHome( { route, navigation } ){
                         </TouchableOpacity>
 
                         
-                            <View style={styles.postFooter}>
-                                <TouchableOpacity style={styles.postFooterScore}>
-                                    <FontAwesome name="heart-o" size={25} color="#622565" />
-                                    <Text style={styles.textPostFooterScore}>
-                                        {item.score.length}
-                                    </Text>
-                                </TouchableOpacity>
+                        <View style={styles.postFooter}>
+                            <TouchableOpacity onPress={() => likeItem(item,'postagem')} style={styles.postFooterScore}>
+                                <FontAwesome name={item.liked === true ? "heart" : "heart-o"} size={25} color="#622565" />
+                                <Text style={styles.textPostFooterScore}>
+                                    {item.score.length}
+                                </Text>
+                            </TouchableOpacity>
 
-                                <View style={styles.postFooterDate}>
-                                    <Text style={styles.textPostFooterDate}>
-                                        {moment.unix(item.createdWhen.seconds).format("DD/MM/YYYY HH:mm")}
-                                    </Text>
-                                </View>
+                            <View style={styles.postFooterDate}>
+                                <Text style={styles.textPostFooterDate}>
+                                    {moment.unix(item.createdWhen.seconds).format("DD/MM/YYYY HH:mm")}
+                                </Text>
                             </View>
+                        </View>
                         
                     </View>
                 )

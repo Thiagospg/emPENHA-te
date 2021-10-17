@@ -18,6 +18,8 @@ export default function PostDetails({route, navigation}){
     const [alreadyReported, setAlreadyReported] = useState(false);
     const [marginAnimated] = useState(new Animated.Value(0))
     const [answerError, setAnswerError] = useState(null)
+    const [postLiked, setPostLiked] = useState(route.params.liked)
+    const [postScore, setPostScore] = useState(route.params.score)
 
     //Opening modal report
     const openModalReport = async (item,itemType) => {
@@ -83,6 +85,7 @@ export default function PostDetails({route, navigation}){
             }).then(() => {
                 setAnswerText('');
                 setAnswerError(null);
+                animateSendButton();
             }).catch((error) => {
                 console.error("Error add document: ", error);
             });
@@ -118,7 +121,34 @@ export default function PostDetails({route, navigation}){
     //Like a post or answer
     async function likeItem(item, itemType){
         if (itemType === 'postagem') {
-            
+            if (postLiked) {
+                await database.collection("posts").doc(route.params.id).update({
+                    score: firebase.firestore.FieldValue.arrayRemove(firebase.auth().currentUser.uid)
+                })
+                .then(() => {
+                    let indexArray = postScore.indexOf(firebase.auth().currentUser.uid);
+                    if (indexArray > -1) {
+                        postScore.splice(indexArray, 1);
+                    }
+                    setPostLiked(false);
+                    console.log("Document successfully removed!");
+                })
+                .catch((error) => {
+                    console.error("Error removing document: ", error);
+                });
+            }else {
+                await database.collection("posts").doc(route.params.id).update({
+                    score: firebase.firestore.FieldValue.arrayUnion(firebase.auth().currentUser.uid)
+                })
+                .then(() => {
+                    postScore.push(firebase.auth().currentUser.uid);
+                    setPostLiked(true);
+                    console.log("Document successfully written!");
+                })
+                .catch((error) => {
+                    console.error("Error writing document: ", error);
+                });
+            }
         } else {
             if (item.liked) {
                 await database.collection("posts").doc(route.params.id).collection('answers').doc(item.id).update({
@@ -161,7 +191,7 @@ export default function PostDetails({route, navigation}){
     return(
         <SafeAreaView style={styles.container}>
            
-           <Header leftIcon={'arrow-left'} rightIcon={'menu'} title={'Publicação'} leftAction={() => navigation.goBack()} rightAction={()=>openModalMenu()} />
+           <Header leftIcon={'arrow-left'} rightIcon={'more-vertical'} title={'Publicação'} leftAction={() => navigation.goBack()} rightAction={()=>openModalMenu()} />
 
             <Modal 
             coverScreen={false}
@@ -170,6 +200,7 @@ export default function PostDetails({route, navigation}){
             animationIn="wobble"
             animationOut="zoomOut"
             onBackdropPress={() => setIsModalReportVisible(false)}
+            onBackButtonPress={() => setIsModalReportVisible(false)}
             >
                 <View style={styles.modalView}>
                    <View>
@@ -187,41 +218,67 @@ export default function PostDetails({route, navigation}){
                 </View>
             </Modal>
 
-
             <Modal 
-            style={{marginRight:4}}
+            backdropOpacity={0}
+            style={{marginRight:0}}
             isVisible={isModalMenuVisible} 
-            animationIn="wobble"
-            animationOut="zoomOut"
+            animationIn="fadeInRight"
+            animationOut="fadeOutRight"
             onBackdropPress={() => setIsModalMenuVisible(false)}
+            onBackButtonPress={() => setIsModalMenuVisible(false)}
             >
                 <SafeAreaView style={{flex: 1, alignItems: 'flex-end'}}>
-                    <View style={{height:'50%',width:'50%',backgroundColor: 'white'}}>
-                        <Text>Teste</Text>
+                    <View style={styles.modalMenuView}>
+                        { //Delete or close the post
+                            route.params.creatorId === firebase.auth().currentUser.uid
+                            ?
+                                answer.length === 0 
+                                ?
+                                <TouchableOpacity>
+                                    <Text>Excluir</Text>
+                                </TouchableOpacity>
+                                :
+                                <TouchableOpacity>
+                                    <Text>Trancar</Text>
+                                </TouchableOpacity>
+                            : 
+                            null
+                        }
+
+                        { //Edit the post
+                            route.params.creatorId === firebase.auth().currentUser.uid
+                            ?
+                                <TouchableOpacity>
+                                    <Text>Editar</Text>
+                                </TouchableOpacity>
+                            : 
+                            null
+                        }
+
+                        { //Report the post
+                            route.params.creatorId !== firebase.auth().currentUser.uid
+                            ?
+                                <TouchableOpacity>
+                                    <Text>Denunciar</Text>
+                                </TouchableOpacity>
+                            : 
+                            null
+                        }
                     </View>
                 </SafeAreaView>
             </Modal>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-           
             <View style={styles.boxPostTitle}> 
                 <Text style={styles.textPostTitle}>{route.params.title}</Text>
             </View>
 
             <ScrollView style={styles.boxPostContent} showsVerticalScrollIndicator={false}>
                 <Text style={styles.textPostContent}>{route.params.description}</Text>
+
+                <TouchableOpacity activeOpacity={0.6} onPress={() => likeItem(route.params,'postagem')} style={styles.buttonPostLike}>
+                    <FontAwesome name={postLiked === true ? "heart" : "heart-o"} size={25} color="#622565" style={{alignSelf:'flex-start'}} />
+                    <Text>{postScore.length}</Text>
+                 </TouchableOpacity>
                 { 
                     answer.length === 0 
                     ? 
@@ -235,18 +292,19 @@ export default function PostDetails({route, navigation}){
                     answer.map((item, index) => (
                         <View key={index}>
                             <View style={styles.boxListAllAnswers}>
-                                <TouchableOpacity style={styles.boxListAnswer} onLongPress={()=>openModalReport(item,'resposta')}>
+                                <TouchableOpacity style={styles.boxListAnswer} onPress={()=>openModalReport(item,'resposta')}>
                                     <Text style={styles.textListAnswer}>{item.description}</Text>
                                 </TouchableOpacity>
 
                                 <View style={styles.boxListAnswerLike}>
                                     <TouchableOpacity activeOpacity={0.6} onPress={() => likeItem(item,'resposta')}>
                                         <FontAwesome name={item.liked === true ? "heart" : "heart-o"} size={22} color="#622565" />
+                                        <Text style={styles.textListAnswerScore}>
+                                            {item.score.length}
+                                        </Text>
                                     </TouchableOpacity>
                                     
-                                    <Text style={styles.textListAnswerScore}>
-                                        {item.score.length}
-                                    </Text>
+                                    
                                 </View>
                             </View>
                             <View style={styles.boxListAnswerDate}>
@@ -281,7 +339,6 @@ export default function PostDetails({route, navigation}){
                     style={styles.boxSendAnswer} 
                     activeOpacity={0.8}
                     onPress={() => addAnswer()} 
-                    onPressOut={() => animateSendButton()}
                 >   
                    <Animated.View style={{transform:[{translateX:marginAnimated}]}}>
                         <Ionicons name="send" size={18} color="#f5cec6" />

@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
         marginTop:10,
         padding: 10,
         backgroundColor:'#f9fafd',
-        width:'95%',  
+        width:'100%',  
     },
     textPostTitle: {
         fontSize: 20,
@@ -135,6 +135,7 @@ const styles = StyleSheet.create({
     },
     textListAnswerScore:{
         fontSize: 9,
+        textAlign:'center'
     },
     boxListAnswerDate:{
         width:'100%',
@@ -150,7 +151,29 @@ const styles = StyleSheet.create({
     textAnswerError:{
         fontSize: 13,
         color: '#ff0800',
-        textAlign: 'center'
+        textAlign: 'center',
+        marginBottom:5,
+    },
+    modalMenuView:{
+        height:'25%',
+        width:'50%',
+        backgroundColor: '#622565',
+        borderRadius: 2,
+        shadowColor: 'rgba(0,0,0,1)',
+        shadowOffset: {width: 0, height: 1},
+        shadowOpacity: 1,
+        shadowRadius: 2,
+        elevation: 10,
+    },
+    buttonPostLike:{
+        width:'12%', 
+        alignSelf:'center', 
+        marginTop: 35,
+        borderRadius: 5,
+        alignItems:'center', 
+        padding:4,
+        flexDirection: 'row',
+        justifyContent:'space-between'
     },
 });
 
