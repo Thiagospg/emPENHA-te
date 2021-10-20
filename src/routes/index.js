@@ -89,7 +89,7 @@ function StackRoutes(){
                 name="NewPost"
                 component={NewPost}
                 options={{
-                headerTitle: 'Criação de postagem',
+                headerTitle: 'Publicação de postagem',
                 headerTitleAlign: 'center',
                 headerTintColor: '#f5cec6',
                 headerStyle:{

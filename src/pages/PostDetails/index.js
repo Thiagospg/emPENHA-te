@@ -13,28 +13,41 @@ export default function PostDetails({route, navigation}){
     const [answer, setAnswer] = useState([]);
     const [isModalReportVisible, setIsModalReportVisible] = useState(false);
     const [isModalMenuVisible, setIsModalMenuVisible] = useState(false);
-    const [answerItem, setAnswerItem] = useState({});
+    const [item, setItem] = useState({});
     const [itemType, setItemType] = useState('');
     const [alreadyReported, setAlreadyReported] = useState(false);
-    const [marginAnimated] = useState(new Animated.Value(0))
-    const [answerError, setAnswerError] = useState(null)
-    const [postLiked, setPostLiked] = useState(route.params.liked)
-    const [postScore, setPostScore] = useState(route.params.score)
+    const [marginAnimated] = useState(new Animated.Value(0));
+    const [answerError, setAnswerError] = useState(null);
+    const [postLiked, setPostLiked] = useState(route.params.liked);
+    const [postScore] = useState(route.params.score);
+    const [postClosed, setPostClosed] = useState(route.params.closed);
 
     //Opening modal report
     const openModalReport = async (item,itemType) => {
         setItemType(itemType);
-        setAnswerItem(item);
+        setItem(item);
 
-        await database.collection("posts").doc(route.params.id).collection('answers').doc(item.id).collection('reports').doc(firebase.auth().currentUser.uid).get()
+        if (itemType === 'resposta') {
+            await database.collection("posts").doc(route.params.id).collection('answers').doc(item.id).collection('reports').doc(firebase.auth().currentUser.uid).get()
+            .then(function(querySnapshot) {
+                if (querySnapshot.data() !== undefined) {
+                    setAlreadyReported(true)
+                } else {
+                    setAlreadyReported(false)
+                }
+            });
+        } else {
+            setIsModalMenuVisible(false)
+            await database.collection("posts").doc(item.id).collection('reports').doc(firebase.auth().currentUser.uid).get()
             .then(function(querySnapshot) {
                 if (querySnapshot.data() !== undefined) {
                     setAlreadyReported(true)
                 } else {
                     setAlreadyReported(false) 
                 }
-        });
-        
+            });
+        }
+
         setIsModalReportVisible(!isModalReportVisible);     
     };
 
@@ -106,7 +119,7 @@ export default function PostDetails({route, navigation}){
                 console.error("Error writing document: ", error);
             });
         } else {
-            await database.collection("posts").doc(route.params.id).collection('answers').doc(answerItem.id).collection('reports').doc(firebase.auth().currentUser.uid).set({
+            await database.collection("posts").doc(route.params.id).collection('answers').doc(item.id).collection('reports').doc(firebase.auth().currentUser.uid).set({
                 reportedWhen: firebase.firestore.FieldValue.serverTimestamp(),
             }).then(() => {
                 console.log("Document successfully written!");
@@ -174,6 +187,74 @@ export default function PostDetails({route, navigation}){
         }    
     }
 
+    const AsyncAlert = (title, description) => {
+        return new Promise((resolve, reject) => {
+            Alert.alert(
+                title,
+                description,
+                [
+                    {text: 'NÃO', onPress: () => resolve('NÃO') },
+                    {text: 'SIM', onPress: () => resolve('SIM') },
+                ],
+                { cancelable: true }
+                
+            )
+        })
+    }
+
+    // Close a post
+    async function closePost(){
+        setIsModalMenuVisible(false);
+        const userResponse = await AsyncAlert('Trancar postagem', 'Deseja trancar a postagem?');
+        
+        if (userResponse === 'SIM') {
+            await database.collection("posts").doc(route.params.id).update({
+                closed: true,
+            }).then(() => {
+                setPostClosed(true);
+                console.log("Document successfully written!");
+            })
+            .catch((error) => {
+                console.error("Error writing document: ", error);
+            });
+        }  
+    }
+
+    // Open a post
+    async function openPost(){
+        setIsModalMenuVisible(false);
+        const userResponse = await AsyncAlert('Destrancar postagem', 'Deseja destrancar a postagem?');
+        
+        if (userResponse === 'SIM') {
+            await database.collection("posts").doc(route.params.id).update({
+                closed: false,
+            }).then(() => {
+                setPostClosed(false);
+                console.log("Document successfully written!");
+            })
+            .catch((error) => {
+                console.error("Error writing document: ", error);
+            });
+        }  
+    }
+
+    // Delete a post
+    async function deletePost(){
+        setIsModalMenuVisible(false);
+        const userResponse = await AsyncAlert('Deletar postagem', 'Deseja deletar a postagem?');
+        
+        if (userResponse === 'SIM') {
+            await database.collection("posts").doc(route.params.id).delete().then(() => {
+                setPostClosed(false);
+                navigation.goBack();
+                console.log("Document successfully deleted!");
+            })
+            .catch((error) => {
+                console.error("Error deleting document: ", error);
+            });
+        }  
+    }
+
     //Loading answers
     useEffect(() =>{
         database.collection('posts').doc(route.params.id).collection('answers').orderBy('createdWhen','desc').onSnapshot({ includeMetadataChanges: true },(query)=>{
@@ -210,7 +291,7 @@ export default function PostDetails({route, navigation}){
                     </View>
                     <Text style={styles.modalTextTitle}>Deseja denunciar a {itemType} abaixo?</Text>
                     <ScrollView>
-                        <Text style={styles.modalText}>{itemType === 'postagem' ? route.params.title : answerItem.description}</Text>
+                        <Text style={styles.modalText}>{itemType === 'postagem' ? route.params.title : item.description}</Text>
                     </ScrollView>
                     <TouchableOpacity style={styles.modalReportButton} disabled={alreadyReported} onPress={reportItem}>
                         <Text style={styles.modalReportButtonText}>{alreadyReported ? 'Já denunciada' : 'Denunciar'}</Text>
@@ -234,13 +315,19 @@ export default function PostDetails({route, navigation}){
                             ?
                                 answer.length === 0 
                                 ?
-                                <TouchableOpacity>
-                                    <Text>Excluir</Text>
+                                <TouchableOpacity onPress={() => deletePost()}>
+                                    <Text style={styles.textOptionButton}>Excluir</Text>
                                 </TouchableOpacity>
                                 :
-                                <TouchableOpacity>
-                                    <Text>Trancar</Text>
-                                </TouchableOpacity>
+                                    postClosed
+                                    ?
+                                    <TouchableOpacity onPress={() => openPost()}>
+                                        <Text style={styles.textOptionButton}>Destrancar</Text>
+                                    </TouchableOpacity>
+                                    :
+                                    <TouchableOpacity onPress={() => closePost()}>
+                                        <Text style={styles.textOptionButton}>Trancar</Text>
+                                    </TouchableOpacity>
                             : 
                             null
                         }
@@ -248,8 +335,18 @@ export default function PostDetails({route, navigation}){
                         { //Edit the post
                             route.params.creatorId === firebase.auth().currentUser.uid
                             ?
-                                <TouchableOpacity>
-                                    <Text>Editar</Text>
+                                <TouchableOpacity onPressIn={() =>setIsModalMenuVisible(false)} onPress={() => navigation.navigate("NewPost",{
+                                        operation:"upd", 
+                                        id: route.params.id,
+                                        title: route.params.title, 
+                                        description: route.params.description,
+                                        date: route.params.date,
+                                        creatorId: route.params.creatorId,
+                                        score: route.params.score,
+                                        liked: route.params.liked,
+                                        closed: route.params.closed
+                                    })}>
+                                    <Text style={styles.textOptionButton}>Editar</Text>
                                 </TouchableOpacity>
                             : 
                             null
@@ -258,8 +355,8 @@ export default function PostDetails({route, navigation}){
                         { //Report the post
                             route.params.creatorId !== firebase.auth().currentUser.uid
                             ?
-                                <TouchableOpacity>
-                                    <Text>Denunciar</Text>
+                                <TouchableOpacity onPress={()=>openModalReport(route.params,'postagem')}>
+                                    <Text style={styles.textOptionButton}>Denunciar</Text>
                                 </TouchableOpacity>
                             : 
                             null
@@ -298,7 +395,7 @@ export default function PostDetails({route, navigation}){
 
                                 <View style={styles.boxListAnswerLike}>
                                     <TouchableOpacity activeOpacity={0.6} onPress={() => likeItem(item,'resposta')}>
-                                        <FontAwesome name={item.liked === true ? "heart" : "heart-o"} size={22} color="#622565" />
+                                        <FontAwesome name={item.liked === true ? "heart" : "heart-o"} size={25} color="#622565" />
                                         <Text style={styles.textListAnswerScore}>
                                             {item.score.length}
                                         </Text>
@@ -317,36 +414,46 @@ export default function PostDetails({route, navigation}){
                 }
             </ScrollView>
             
-            <Text style={styles.textInformation}>Deixe uma resposta</Text>
-    
-            <View style={styles.footerAnswer}>
-            
-                <View style={styles.boxAnswer}>
-                    <TextInput 
-                        style={styles.textAnswer}
-                        placeholder='Informe a resposta'
-                        onChangeText={setAnswerText}
-                        value={answerText}
-                        multiline={true}
-                        maxLength={350}
-                        returnKeyType='send'
-                        blurOnSubmit = {true}
-                        onSubmitEditing={() => addAnswer()}
-                    />
-                </View>
-                
-                <TouchableOpacity 
-                    style={styles.boxSendAnswer} 
-                    activeOpacity={0.8}
-                    onPress={() => addAnswer()} 
-                >   
-                   <Animated.View style={{transform:[{translateX:marginAnimated}]}}>
-                        <Ionicons name="send" size={18} color="#f5cec6" />
-                    </Animated.View>
-                </TouchableOpacity>
+            {
+                postClosed 
+                ?
+                null
+                :
+                <Text style={styles.textInformation}>Deixe uma resposta</Text>
+            }
 
-                
-            </View>
+            {
+                postClosed 
+                ?
+                null
+                :
+                <View style={styles.footerAnswer}>
+                    <View style={styles.boxAnswer}>
+                        <TextInput 
+                            style={styles.textAnswer}
+                            placeholder='Informe a resposta'
+                            onChangeText={setAnswerText}
+                            value={answerText}
+                            multiline={true}
+                            maxLength={350}
+                            returnKeyType='send'
+                            blurOnSubmit = {true}
+                            onSubmitEditing={() => addAnswer()}
+                        />
+                    </View>
+                    
+                    <TouchableOpacity 
+                        style={styles.boxSendAnswer} 
+                        activeOpacity={0.8}
+                        onPress={() => addAnswer()} 
+                    >   
+                    <Animated.View style={{transform:[{translateX:marginAnimated}]}}>
+                            <Ionicons name="send" size={18} color="#f5cec6" />
+                        </Animated.View>
+                    </TouchableOpacity>
+                </View>
+            }
+            
             {answerError !== null ?
                 <Text style={styles.textAnswerError}>{answerError}</Text>
             : null}

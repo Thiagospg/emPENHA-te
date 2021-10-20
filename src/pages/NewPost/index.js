@@ -3,10 +3,10 @@ import firebase from '../../config/firebaseconfig';
 import { View, Text, TouchableOpacity, TextInput, SafeAreaView, Alert } from 'react-native';
 import styles from './style';
 
-export default function NewPost({navigation}){
+export default function NewPost({route, navigation}){
     const database = firebase.firestore();
-    const [postDescription, setPostDescription] = useState('');
-    const [postTitle, setPostTitle] = useState('');
+    const [postDescription, setPostDescription] = useState(route.params.description ? route.params.description : '');
+    const [postTitle, setPostTitle] = useState(route.params.title ? route.params.title : '');
 
     async function addPost(){
         if (postDescription && postTitle !== ''){
@@ -15,7 +15,8 @@ export default function NewPost({navigation}){
                 createdBy: firebase.auth().currentUser.uid,
                 description: postDescription,
                 score: [],
-                title: postTitle
+                title: postTitle,
+                closed: false
             }).then(() => {
                 navigation.navigate('PostHome');
                 
@@ -24,6 +25,33 @@ export default function NewPost({navigation}){
             });
         } else {
             Alert.alert('Não foi possível criar a postagem','Por favor, preencha tanto o título quanto o conteúdo da postagem')
+        }
+            
+    }
+
+    async function updPost(){
+        if (postDescription && postTitle !== ''){
+            await database.collection("posts").doc(route.params.id).update({
+                description: postDescription,
+                title: postTitle,
+            }).then(() => {
+                navigation.navigate('PostDetails', 
+                {
+                    id: route.params.id,
+                    title: postTitle, 
+                    description: postDescription,
+                    date: route.params.date,
+                    creatorId: route.params.creatorId,
+                    score: route.params.score,
+                    liked: route.params.liked,
+                    closed: route.params.closed
+                });
+                
+            }).catch((error) => {
+                console.error("Error add document: ", error);
+            });
+        } else {
+            Alert.alert('Não foi possível editar a postagem','Por favor, preencha tanto o título quanto o conteúdo da postagem')
         }
             
     }
@@ -53,15 +81,13 @@ export default function NewPost({navigation}){
                 </View>
             </View>
 
-           
             <TouchableOpacity 
-            onPress={() => addPost()}
+            onPress={() => route.params.operation === 'add' ? addPost() : updPost()}
             style={styles.buttonAdd}>
                  <View style={styles.boxButtonAdd}>
                     <Text style={styles.textButtonAdd}>Publicar</Text>
                 </View>
             </TouchableOpacity>
-            
         </SafeAreaView>
     )
 }

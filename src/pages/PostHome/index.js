@@ -144,7 +144,6 @@ export default function PostHome( { route, navigation } ){
         });
 
         responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-            //console.log(response.notification.request.content.data); 
             const item = response.notification.request.content.data;
             
             navigation.navigate('PostDetails',
@@ -155,6 +154,8 @@ export default function PostHome( { route, navigation } ){
                         date: item.date,
                         creatorId: item.creatorId,
                         score: item.score,
+                        liked: item.liked,
+                        closed: item.closed
                     });
         });
 
@@ -228,7 +229,8 @@ export default function PostHome( { route, navigation } ){
                             date: item.createdWhen,
                             creatorId: item.createdBy,
                             score: item.score,
-                            liked: item.liked
+                            liked: item.liked,
+                            closed: item.closed
                         })}
                         >
                             <View style={styles.postTitle}>
@@ -269,7 +271,8 @@ export default function PostHome( { route, navigation } ){
                 <TouchableOpacity 
                 activeOpacity={0.8}
                 style={styles.buttonNewPost}
-                onPress={() => navigation.navigate("NewPost")}>
+                onPress={() => navigation.navigate("NewPost",{operation:"add"})}
+                >
                     <Text style={styles.iconButton}>+</Text>
                 </TouchableOpacity>
                 </View>

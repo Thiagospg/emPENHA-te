@@ -155,8 +155,8 @@ const styles = StyleSheet.create({
         marginBottom:5,
     },
     modalMenuView:{
-        height:'25%',
-        width:'50%',
+        height:80,
+        width:120,
         backgroundColor: '#622565',
         borderRadius: 2,
         shadowColor: 'rgba(0,0,0,1)',
@@ -175,6 +175,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent:'space-between'
     },
+    textOptionButton:{
+        fontWeight: 'bold',
+        fontSize:16,
+        textAlign: 'center',
+        color: '#f5cec6',
+        padding: 8
+    }
 });
 
 export default styles;
