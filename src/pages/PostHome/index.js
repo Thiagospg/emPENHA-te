@@ -22,14 +22,15 @@ export default function PostHome( { route, navigation } ){
         const userResponse = await AsyncAlert();
         
         if (userResponse === 'SIM') {
-            firebase.auth().signOut().then(() => {
-                navigation.navigate("Login")
-              }).catch((error) => {
+            
+            await firebase.auth().signOut().then(() => {
+                navigation.goBack()
+            }).catch((error) => {
                 let errorCode = error.code;
                 let errorMessage = error.message;
-    
+
                 console.log(errorCode + ' ' + errorMessage);
-              });
+            });
         }
     }
 
@@ -178,7 +179,7 @@ export default function PostHome( { route, navigation } ){
             const list = [];
 
             query.forEach((doc)=> {
-                list.push({...doc.data(), id: doc.id, liked: doc.data().score.includes(firebase.auth().currentUser.uid) ? true : false});
+                firebase.auth().currentUser !== null ? list.push({...doc.data(), id: doc.id, liked: doc.data().score.includes(firebase.auth().currentUser.uid) ? true : false}) : null;
             });
             if (!query.metadata.hasPendingWrites){
                 setPost(list);

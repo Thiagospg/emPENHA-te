@@ -94,6 +94,14 @@ const styles = StyleSheet.create({
         color: '#622565',
         fontSize:16
     },
+    textClosedPost:{
+        textAlign:'center', 
+        marginBottom: 15, 
+        fontSize: 16, 
+        fontWeight: 'bold', 
+        color: '#a1a1a1',
+        paddingHorizontal:18
+    },
     textAnswer:{
         paddingVertical:8,
         paddingHorizontal:'5%',

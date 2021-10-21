@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import firebase from '../../config/firebaseconfig';
 import { View, Text, TouchableOpacity, TextInput, SafeAreaView, Alert } from 'react-native';
 import styles from './style';
+import nlp from 'compromise/compromise';
 
 export default function NewPost({route, navigation}){
     const database = firebase.firestore();
@@ -9,6 +10,18 @@ export default function NewPost({route, navigation}){
     const [postTitle, setPostTitle] = useState(route.params.title ? route.params.title : '');
 
     async function addPost(){
+      //TO DO
+        /*  let doc = nlp('john');
+        let people = doc.match('#FirstName');
+
+        if(people.text() === ''){
+            console.log(doc)
+            console.log("não tem nome")
+        } else {
+            console.log(doc)
+            console.log("tem nome")
+        }
+        */
         if (postDescription && postTitle !== ''){
             await database.collection("posts").add({
                 createdWhen: firebase.firestore.FieldValue.serverTimestamp(),

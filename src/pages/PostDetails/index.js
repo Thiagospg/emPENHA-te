@@ -300,6 +300,7 @@ export default function PostDetails({route, navigation}){
             </Modal>
 
             <Modal 
+            coverScreen={false}
             backdropOpacity={0}
             style={{marginRight:0}}
             isVisible={isModalMenuVisible} 
@@ -355,7 +356,7 @@ export default function PostDetails({route, navigation}){
                         { //Report the post
                             route.params.creatorId !== firebase.auth().currentUser.uid
                             ?
-                                <TouchableOpacity onPress={()=>openModalReport(route.params,'postagem')}>
+                                <TouchableOpacity style={{flex:1, justifyContent:'center'}} onPress={()=>openModalReport(route.params,'postagem')}>
                                     <Text style={styles.textOptionButton}>Denunciar</Text>
                                 </TouchableOpacity>
                             : 
@@ -417,7 +418,7 @@ export default function PostDetails({route, navigation}){
             {
                 postClosed 
                 ?
-                null
+                <Text style={styles.textClosedPost}>Postagem trancada</Text>
                 :
                 <Text style={styles.textInformation}>Deixe uma resposta</Text>
             }

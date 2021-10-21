@@ -5,18 +5,12 @@
 ## OBJETIVO
 
 <p>
- 
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Este trabalho tem como objetivo dar luz à problemática da perpetuação da violência doméstica e familiar, agravada durante o período de isolamento social da pandemia de Covid-19, e colaborar com a erradicação desta forma de violência, impulsionando a discussão da temática, por meio do compartilhamento de informações e experiências que ajudem a permear o caminho do combate à prática. 
 </p>
 
 <p>
-   
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Para isso, este trabalho pretende implementar um ambiente acessível, seguro e acolhedor para que mulheres, vítimas ou não, possam ser orientadas, adquiram conhecimento sobre o assunto, tenham sua escuta garantida e passem a contar com uma rede de apoio, sem que sejam expostas. Esse espaço será implementado por meio de um aplicativo para smartphones com acesso a internet, que permitirá a interação do público-alvo.
 </p>
-
-<p> 
-  
-</p>
-
-<br>
 
 ---
 <br>
@@ -37,7 +31,6 @@
 <br>
 
 - React Native
-- Node.js
 - Expo
 - Firebase
 - Badwords

@@ -87,9 +87,9 @@ export default function Login({ route, navigation }){
         } catch (e) {
           return { error: true };
         }
-      }
+    }
       
-      const signUpFacebook = async () => {
+    const signUpFacebook = async () => {
         try {
           await Facebook.initializeAsync({
               appId:"215114547266039",
@@ -112,15 +112,15 @@ export default function Login({ route, navigation }){
         } catch (e) {
             return { error: true };
         }
-      };
+    }
     
-      //Auto login based on previously account logged
-        useEffect(()=>{
-            firebase.auth().onAuthStateChanged((user) => {
-                if (user !== null) 
-                    navigation.navigate("PostHome", {userId: user.uid})
-            });
-        },[]);
+    //Auto login based on previously account logged
+    useEffect(()=>{
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user != null) 
+                navigation.navigate("PostHome", {userId: user.uid})
+        });
+    },[]);
 
     return(
         <SafeAreaView style={styles.container}>
