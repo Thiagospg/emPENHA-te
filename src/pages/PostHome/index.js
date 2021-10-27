@@ -6,6 +6,7 @@ import firebase from '../../config/firebaseconfig';
 import { FontAwesome } from '@expo/vector-icons';
 import Header from '../../components/Header';
 import Constants from 'expo-constants';
+import Modal from "react-native-modal";
 import moment from "moment";
 import styles from './style';
 
@@ -14,9 +15,14 @@ export default function PostHome( { route, navigation } ){
     const database = firebase.firestore();
     const [expoPushToken, setExpoPushToken] = useState(null);
     const [notification, setNotification] = useState(false);
-    const notificationListener = useRef();
-    const responseListener = useRef();
     const [post, setPost] = useState([]);
+    const [orderBy, setOrderBy] = useState('createdWhen');
+    const [typeOrderBy, setTypeOrderBy] = useState('desc');
+    const [isModalOrderByVisible, setIsModalOrderByVisible] = useState(false);
+    const responseListener = useRef();
+    const notificationListener = useRef();
+    const flatListRef = React.useRef()
+    
 
     const handleDeslogin = async () => {
         const userResponse = await AsyncAlert();
@@ -31,6 +37,25 @@ export default function PostHome( { route, navigation } ){
 
                 console.log(errorCode + ' ' + errorMessage);
             });
+        }
+    }
+
+    const changeOrderList = (order) => {
+        switch(order){
+            case 'createdWhen':
+                setOrderBy('createdWhen');
+                setTypeOrderBy('desc');
+            break;
+
+            case 'score':
+                setOrderBy('score');
+                setTypeOrderBy('desc');
+            break;
+
+            case 'title':
+                setOrderBy('title_insensitive');
+                setTypeOrderBy('asc');
+            break;
         }
     }
 
@@ -175,7 +200,7 @@ export default function PostHome( { route, navigation } ){
 
     //Getting posts
     useEffect(() =>{
-        database.collection('posts').orderBy('createdWhen','desc').onSnapshot({ includeMetadataChanges: true },(query)=>{
+        database.collection('posts').orderBy(orderBy,typeOrderBy).onSnapshot({ includeMetadataChanges: true },(query)=>{
             const list = [];
 
             query.forEach((doc)=> {
@@ -183,9 +208,10 @@ export default function PostHome( { route, navigation } ){
             });
             if (!query.metadata.hasPendingWrites){
                 setPost(list);
+                flatListRef.current.scrollToOffset({ animated: true, offset: 0 })
             }
         });
-    },[]);
+    },[orderBy]);
 
     //BackButton exit app
     useFocusEffect(
@@ -211,11 +237,39 @@ export default function PostHome( { route, navigation } ){
     return(
         <SafeAreaView style={styles.container}>
 
-            <Header leftIcon={'filter'} rightIcon={'log-out'} title={'Publicações'} leftAction={null} rightAction={() => handleDeslogin()} />
+            <Header leftIcon={'filter'} rightIcon={'log-out'} title={'Publicações'} leftAction={() => setIsModalOrderByVisible(true)} rightAction={() => handleDeslogin()} />
+
+            <Modal 
+            coverScreen={false}
+            backdropOpacity={0}
+            style={{marginLeft:0}}
+            isVisible={isModalOrderByVisible} 
+            animationIn="fadeInLeft"
+            animationOut="fadeOutLeft"
+            onBackdropPress={() => setIsModalOrderByVisible(false)}
+            onBackButtonPress={() => setIsModalOrderByVisible(false)}
+            >
+                <SafeAreaView style={{flex: 1, alignItems: 'flex-start'}}>
+                    <View style={styles.modalMenuView}>
+                        <TouchableOpacity onPressIn={() =>setIsModalOrderByVisible(false)} onPress={() => changeOrderList('createdWhen')}>
+                            <Text style={styles.textOptionButton}>Recente</Text>
+                        </TouchableOpacity>
+                    
+                        <TouchableOpacity onPressIn={() =>setIsModalOrderByVisible(false)} onPress={() => changeOrderList('score')}>
+                            <Text style={styles.textOptionButton}>Like</Text>
+                        </TouchableOpacity>
+                        
+                        <TouchableOpacity onPressIn={() =>setIsModalOrderByVisible(false)} onPress={() => changeOrderList('title')}>
+                            <Text style={styles.textOptionButton}>Título</Text>
+                        </TouchableOpacity>
+                    </View>
+                </SafeAreaView>
+            </Modal> 
 
             <FlatList 
             keyExtractor={(item) => { return item.id; }}
             showsVerticalScrollIndicator={false}
+            ref={flatListRef}
             data={post}
             renderItem={( {item} ) => {
                 return(
@@ -249,13 +303,15 @@ export default function PostHome( { route, navigation } ){
 
                         
                         <View style={styles.postFooter}>
-                            <TouchableOpacity onPress={() => likeItem(item,'postagem')} style={styles.postFooterScore}>
-                                <FontAwesome name={item.liked === true ? "heart" : "heart-o"} size={25} color="#622565" />
-                                <Text style={styles.textPostFooterScore}>
-                                    {item.score.length}
-                                </Text>
-                            </TouchableOpacity>
-
+                            <View style={styles.postFooterScore}>
+                                <TouchableOpacity onPress={() => likeItem(item,'postagem')} style={styles.postFooterButton}>
+                                    <FontAwesome name={item.liked === true ? "heart" : "heart-o"} size={25} color="#622565" />
+                                    <Text style={styles.textPostFooterScore}>
+                                        {item.score.length}
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                            
                             <View style={styles.postFooterDate}>
                                 <Text style={styles.textPostFooterDate}>
                                     {moment.unix(item.createdWhen.seconds).format("DD/MM/YYYY HH:mm")}

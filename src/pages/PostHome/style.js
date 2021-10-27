@@ -84,14 +84,34 @@ const styles = StyleSheet.create({
     postFooterScore:{
         flex:0.7,
         flexDirection: 'row',
-        marginRight: 0,
-        alignItems: 'center',
         justifyContent: 'flex-end'
+    },
+    postFooterButton:{
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     textPostFooterScore:{
         fontSize: 14,
         marginLeft: 5
     },
+    modalMenuView:{
+        height:120,
+        width:120,
+        backgroundColor: '#622565',
+        borderRadius: 2,
+        shadowColor: 'rgba(0,0,0,1)',
+        shadowOffset: {width: 0, height: 1},
+        shadowOpacity: 1,
+        shadowRadius: 2,
+        elevation: 10,
+    },
+    textOptionButton:{
+        fontWeight: 'bold',
+        fontSize:16,
+        textAlign: 'center',
+        color: '#f5cec6',
+        padding: 8
+    }
     
 });
 

@@ -2,10 +2,13 @@ import  React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, SafeAreaView, ScrollView, TouchableOpacity, Alert, Animated } from 'react-native';
 import { FontAwesome, Ionicons, Feather } from '@expo/vector-icons';
 import firebase from '../../config/firebaseconfig';
+import filterText from '../../lib/filterText';
 import Header from '../../components/Header';
+import * as Clipboard from 'expo-clipboard';
 import Modal from "react-native-modal";
 import moment from "moment";
 import styles from './style';
+
 
 export default function PostDetails({route, navigation}){
     const database = firebase.firestore();
@@ -90,18 +93,22 @@ export default function PostDetails({route, navigation}){
 
     async function addAnswer(){
         if (answerText.trim() !== ''){
-            await database.collection("posts").doc(route.params.id).collection('answers').add({
-                createdWhen: firebase.firestore.FieldValue.serverTimestamp(),
-                createdBy: firebase.auth().currentUser.uid,
-                description: answerText,
-                score: []
-            }).then(() => {
-                setAnswerText('');
-                setAnswerError(null);
-                animateSendButton();
-            }).catch((error) => {
-                console.error("Error add document: ", error);
-            });
+            if (!filterText.havePersonName(answerText.trim())) {
+                await database.collection("posts").doc(route.params.id).collection('answers').add({
+                    createdWhen: firebase.firestore.FieldValue.serverTimestamp(),
+                    createdBy: firebase.auth().currentUser.uid,
+                    description: answerText,
+                    score: []
+                }).then(() => {
+                    setAnswerText('');
+                    setAnswerError(null);
+                    animateSendButton();
+                }).catch((error) => {
+                    console.error("Error add document: ", error);
+                });
+            } else {
+                Alert.alert('Não foi possível criar a postagem','Não é possível criar postagens com palavras que firam o anonimato ou que sejam de baixo calão')
+            }
         } else {
            setAnswerError('Por favor, digite a sua resposta')
         }      
@@ -429,8 +436,9 @@ export default function PostDetails({route, navigation}){
                 null
                 :
                 <View style={styles.footerAnswer}>
-                    <View style={styles.boxAnswer}>
+                    <View removeClippedSubviews={true} style={styles.boxAnswer}>
                         <TextInput 
+                            contextMenuHidden={true}
                             style={styles.textAnswer}
                             placeholder='Informe a resposta'
                             onChangeText={setAnswerText}
