@@ -72,6 +72,12 @@ const styles = StyleSheet.create({
         borderBottomWidth: 0.2,
         alignSelf:'center',
     },
+    postFooterAnswers:{
+        flex: 0.2,
+        justifyContent: 'flex-end',
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
     postFooterDate:{
         flex: 0.5,
         paddingRight: 15,
@@ -82,7 +88,7 @@ const styles = StyleSheet.create({
         fontSize: 13,
     },
     postFooterScore:{
-        flex:0.7,
+        flex:0.5,
         flexDirection: 'row',
         justifyContent: 'flex-end'
     },
@@ -95,7 +101,7 @@ const styles = StyleSheet.create({
         marginLeft: 5
     },
     modalMenuView:{
-        height:120,
+        height:160,
         width:120,
         backgroundColor: '#622565',
         borderRadius: 2,
@@ -106,9 +112,8 @@ const styles = StyleSheet.create({
         elevation: 10,
     },
     textOptionButton:{
-        fontWeight: 'bold',
         fontSize:16,
-        textAlign: 'center',
+        textAlign: 'left',
         color: '#f5cec6',
         padding: 8
     }

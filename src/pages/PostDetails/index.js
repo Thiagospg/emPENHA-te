@@ -1,10 +1,10 @@
 import  React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, SafeAreaView, ScrollView, TouchableOpacity, Alert, Animated } from 'react-native';
+import { useIsFocused } from "@react-navigation/native";
 import { FontAwesome, Ionicons, Feather } from '@expo/vector-icons';
 import firebase from '../../config/firebaseconfig';
 import filterText from '../../lib/filterText';
 import Header from '../../components/Header';
-import * as Clipboard from 'expo-clipboard';
 import Modal from "react-native-modal";
 import moment from "moment";
 import styles from './style';
@@ -24,7 +24,9 @@ export default function PostDetails({route, navigation}){
     const [postLiked, setPostLiked] = useState(route.params.liked);
     const [postScore] = useState(route.params.score);
     const [postClosed, setPostClosed] = useState(route.params.closed);
-
+    const [likeCount, setLikeCount] = useState(route.params.score.length);
+    const isFocused = useIsFocused();
+    
     //Opening modal report
     const openModalReport = async (item,itemType) => {
         setItemType(itemType);
@@ -93,7 +95,7 @@ export default function PostDetails({route, navigation}){
 
     async function addAnswer(){
         if (answerText.trim() !== ''){
-            if (!filterText.havePersonName(answerText.trim())) {
+            if (!filterText.havePersonName(answerText.trim()) && !filterText.haveBadWord(answerText.trim())) {
                 await database.collection("posts").doc(route.params.id).collection('answers').add({
                     createdWhen: firebase.firestore.FieldValue.serverTimestamp(),
                     createdBy: firebase.auth().currentUser.uid,
@@ -151,6 +153,7 @@ export default function PostDetails({route, navigation}){
                         postScore.splice(indexArray, 1);
                     }
                     setPostLiked(false);
+                    setLikeCount(likeCount - 1)
                     console.log("Document successfully removed!");
                 })
                 .catch((error) => {
@@ -163,6 +166,7 @@ export default function PostDetails({route, navigation}){
                 .then(() => {
                     postScore.push(firebase.auth().currentUser.uid);
                     setPostLiked(true);
+                    setLikeCount(likeCount + 1)
                     console.log("Document successfully written!");
                 })
                 .catch((error) => {
@@ -276,6 +280,15 @@ export default function PostDetails({route, navigation}){
         });
     },[]);
 
+    //Updating score in real time
+    useEffect(() => { 
+        database.collection('posts').doc(route.params.id).get().then((querySnapshot) => {
+            querySnapshot
+                // doc.data() is never undefined for query doc snapshots
+                setLikeCount(querySnapshot.data().score_count);
+        });
+    }, [ isFocused]);
+
     return(
         <SafeAreaView style={styles.container}>
            
@@ -352,7 +365,9 @@ export default function PostDetails({route, navigation}){
                                         creatorId: route.params.creatorId,
                                         score: route.params.score,
                                         liked: route.params.liked,
-                                        closed: route.params.closed
+                                        closed: route.params.closed,
+                                        score_count: route.params.score_count,
+                                        answer_count: route.params.answer_count
                                     })}>
                                     <Text style={styles.textOptionButton}>Editar</Text>
                                 </TouchableOpacity>
@@ -382,7 +397,7 @@ export default function PostDetails({route, navigation}){
 
                 <TouchableOpacity activeOpacity={0.6} onPress={() => likeItem(route.params,'postagem')} style={styles.buttonPostLike}>
                     <FontAwesome name={postLiked === true ? "heart" : "heart-o"} size={25} color="#622565" style={{alignSelf:'flex-start'}} />
-                    <Text>{postScore.length}</Text>
+                    <Text>{likeCount}</Text>
                  </TouchableOpacity>
                 { 
                     answer.length === 0 

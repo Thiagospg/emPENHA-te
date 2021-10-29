@@ -1,5 +1,6 @@
 import nlp from 'compromise/compromise';
-
+const Filter = require('../../node_modules/bad-words/lib/badwords')
+const badWord = new Filter();
 const first_names_br = require('./first_names_br.json');
 
 const filterText = {
@@ -14,9 +15,12 @@ const filterText = {
         }
     },
     haveBadWord: function(text){
-
+        if(!badWord.isProfane(text)){
+            return false;
+        } else{
+            return true;
+        }
     }
-    
 }
 
 export default filterText;

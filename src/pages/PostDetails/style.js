@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
         elevation: 10,
     },
     buttonPostLike:{
-        width:'12%', 
+        width:50, 
         alignSelf:'center', 
         marginTop: 35,
         borderRadius: 5,

@@ -11,7 +11,7 @@ export default function NewPost({route, navigation}){
 
     async function addPost(){
         if (postDescription.trim() && postTitle.trim() !== ''){
-            if (!filterText.havePersonName(postDescription.trim()) && !filterText.havePersonName(postTitle.trim())) {
+            if (!filterText.havePersonName(postDescription.trim()) && !filterText.havePersonName(postTitle.trim()) && !filterText.haveBadWord(postDescription.trim()) && !filterText.haveBadWord(postTitle.trim())) {
                 await database.collection("posts").add({
                     createdWhen: firebase.firestore.FieldValue.serverTimestamp(),
                     createdBy: firebase.auth().currentUser.uid,
@@ -19,7 +19,9 @@ export default function NewPost({route, navigation}){
                     score: [],
                     title: postTitle,
                     title_insensitive: postTitle.toLowerCase(),
-                    closed: false
+                    closed: false,
+                    score_count: 0,
+                    answer_count: 0
                 }).then(() => {
                     navigation.navigate('PostHome');
                     
@@ -37,7 +39,7 @@ export default function NewPost({route, navigation}){
 
     async function updPost(){
         if (postDescription.trim() && postTitle.trim() !== ''){
-            if (!filterText.havePersonName(postDescription.trim()) && !filterText.havePersonName(postTitle.trim())) {
+            if (!filterText.havePersonName(postDescription.trim()) && !filterText.havePersonName(postTitle.trim()) && !filterText.haveBadWord(postDescription.trim()) && !filterText.haveBadWord(postTitle.trim())) {
                 await database.collection("posts").doc(route.params.id).update({
                     description: postDescription,
                     title: postTitle,
@@ -52,7 +54,9 @@ export default function NewPost({route, navigation}){
                         creatorId: route.params.creatorId,
                         score: route.params.score,
                         liked: route.params.liked,
-                        closed: route.params.closed
+                        closed: route.params.closed,
+                        score_count: route.params.score_count,
+                        answer_count: route.params.answer_count
                     });
                     
                 }).catch((error) => {

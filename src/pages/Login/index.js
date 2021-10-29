@@ -63,7 +63,7 @@ export default function Login({ route, navigation }){
         //let iosId = '369592394902-nt7e25ru5ibvsr4fcsf5j1apqo1pkqq7.apps.googleusercontent.com';
         //let androidId = '369592394902-pat534vgljl6eddjatd66ktnishku7dm.apps.googleusercontent.com'
         
-        let androidIdStandalone = '369592394902-1asbl1j2060bjjg1q2g6skv068ggqefp.apps.googleusercontent.com'
+        let androidIdStandalone = '369592394902-bua0sp8objktjrpjm8f58bjdifvvukvi.apps.googleusercontent.com'
         let iosIdStandalone = '369592394902-hcsd3lm5tuid9lhki53jd7ndcfie1iam.apps.googleusercontent.com'
         try {
           const result = await Google.logInAsync({
@@ -85,6 +85,7 @@ export default function Login({ route, navigation }){
             return { cancelled: true };
           }
         } catch (e) {
+            console.log(e)
           return { error: true };
         }
     }

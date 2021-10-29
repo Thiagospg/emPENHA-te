@@ -33,7 +33,8 @@
       "userInterfaceStyle": "light",
       "config":{
         "googleSignIn":{
-	   "apiKey": "AIzaSyA8eYR77pjQE24tUyUBDiJETsDv9z5-OTI"
+	   "apiKey": "AIzaSyA8eYR77pjQE24tUyUBDiJETsDv9z5-OTI",
+	   "certificateHash": "6AA8BB22F63A8DD9E011F183FF2C8053D9DD773B"
         }
       },
       "googleServicesFile": "./google-services.json",

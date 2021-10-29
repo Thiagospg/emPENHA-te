@@ -61,4 +61,37 @@ exports.sendPushNotification = functions.firestore.document('posts/{postId}/answ
             console.log("No such post document!");
         } 
 });
-    
+
+//Function to update score count field from a post
+exports.updatePostsScoreCount = functions.firestore.document('posts/{postId}').onUpdate(async (change, context) => {
+    const data = change.after.data();
+    const previousData = change.before.data();
+
+    if (data.score.length == previousData.score.length) {
+        return null;
+    }
+
+    return change.after.ref.update({
+        score_count: data.score.length
+    });
+});
+
+//Function to update when answer added count field from a post
+exports.updatePostsAnswerAddedCount = functions.firestore.document('posts/{postId}/answers/{answerId}').onCreate(async (snap, context) => {
+    const postId = context.params.postId
+    const post = db.collection("posts").doc(postId);
+
+    return post.update({
+        answer_count: admin.firestore.FieldValue.increment(1)
+    });
+});
+
+//Function to update when answer deleted count field from a post
+exports.updatePostsAnswerDeletedCount = functions.firestore.document('posts/{postId}/answers/{answerId}').onDelete(async (snap, context) => {
+    const postId = context.params.postId
+    const post = db.collection("posts").doc(postId);
+
+    return post.update({
+        answer_count: admin.firestore.FieldValue.increment(-1)
+    });
+});

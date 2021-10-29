@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, BackHandler, Alert, SafeAreaView } from 'react-native';
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import * as Notifications from 'expo-notifications';
 import firebase from '../../config/firebaseconfig';
 import { FontAwesome } from '@expo/vector-icons';
@@ -21,8 +21,10 @@ export default function PostHome( { route, navigation } ){
     const [isModalOrderByVisible, setIsModalOrderByVisible] = useState(false);
     const responseListener = useRef();
     const notificationListener = useRef();
-    const flatListRef = React.useRef()
-    
+    const flatListRef = React.useRef();
+    const [change, setChange] = useState(false);
+    const isFocused = useIsFocused();
+    const [refreshing, setRefreshing] = useState(false);
 
     const handleDeslogin = async () => {
         const userResponse = await AsyncAlert();
@@ -48,15 +50,22 @@ export default function PostHome( { route, navigation } ){
             break;
 
             case 'score':
-                setOrderBy('score');
-                setTypeOrderBy('desc');
+               setOrderBy('score_count');
+               setTypeOrderBy('desc');
             break;
 
             case 'title':
                 setOrderBy('title_insensitive');
                 setTypeOrderBy('asc');
             break;
+
+            case 'answer':
+                setOrderBy('answer_count');
+                setTypeOrderBy('desc');
+            break;
         }
+        flatListRef.current.scrollToOffset({ animated: true, offset: 0 })
+        setChange(true)
     }
 
     async function addUserDocument(userId){
@@ -151,6 +160,7 @@ export default function PostHome( { route, navigation } ){
                 console.error("Error writing document: ", error);
             });
         }
+        setChange(true);
     }
 
     //Notifications
@@ -181,7 +191,9 @@ export default function PostHome( { route, navigation } ){
                         creatorId: item.creatorId,
                         score: item.score,
                         liked: item.liked,
-                        closed: item.closed
+                        closed: item.closed,
+                        score_count: item.score_count,
+                        answer_count: item.answer_count
                     });
         });
 
@@ -200,7 +212,7 @@ export default function PostHome( { route, navigation } ){
 
     //Getting posts
     useEffect(() =>{
-        database.collection('posts').orderBy(orderBy,typeOrderBy).onSnapshot({ includeMetadataChanges: true },(query)=>{
+        database.collection('posts').orderBy(orderBy,typeOrderBy).get().then(query=>{
             const list = [];
 
             query.forEach((doc)=> {
@@ -208,10 +220,17 @@ export default function PostHome( { route, navigation } ){
             });
             if (!query.metadata.hasPendingWrites){
                 setPost(list);
-                flatListRef.current.scrollToOffset({ animated: true, offset: 0 })
+                setChange(false)
             }
         });
-    },[orderBy]);
+        
+    },[change]);
+
+    useEffect(() => { 
+        if(isFocused){              
+            setChange(true)
+        }     
+    }, [ isFocused]);
 
     //BackButton exit app
     useFocusEffect(
@@ -252,7 +271,7 @@ export default function PostHome( { route, navigation } ){
                 <SafeAreaView style={{flex: 1, alignItems: 'flex-start'}}>
                     <View style={styles.modalMenuView}>
                         <TouchableOpacity onPressIn={() =>setIsModalOrderByVisible(false)} onPress={() => changeOrderList('createdWhen')}>
-                            <Text style={styles.textOptionButton}>Recente</Text>
+                            <Text style={styles.textOptionButton}>Recentes</Text>
                         </TouchableOpacity>
                     
                         <TouchableOpacity onPressIn={() =>setIsModalOrderByVisible(false)} onPress={() => changeOrderList('score')}>
@@ -261,6 +280,10 @@ export default function PostHome( { route, navigation } ){
                         
                         <TouchableOpacity onPressIn={() =>setIsModalOrderByVisible(false)} onPress={() => changeOrderList('title')}>
                             <Text style={styles.textOptionButton}>Título</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPressIn={() =>setIsModalOrderByVisible(false)} onPress={() => changeOrderList('answer')}>
+                            <Text style={styles.textOptionButton}>Respostas</Text>
                         </TouchableOpacity>
                     </View>
                 </SafeAreaView>
@@ -271,6 +294,12 @@ export default function PostHome( { route, navigation } ){
             showsVerticalScrollIndicator={false}
             ref={flatListRef}
             data={post}
+            refreshing={refreshing}
+            onRefresh={() => {
+                setRefreshing(true);
+                setChange(true);
+                setRefreshing(false);
+            }}
             renderItem={( {item} ) => {
                 return(
                     <View>
@@ -285,7 +314,9 @@ export default function PostHome( { route, navigation } ){
                             creatorId: item.createdBy,
                             score: item.score,
                             liked: item.liked,
-                            closed: item.closed
+                            closed: item.closed,
+                            score_count: item.score_count,
+                            answer_count: item.answer_count
                         })}
                         >
                             <View style={styles.postTitle}>
@@ -303,9 +334,14 @@ export default function PostHome( { route, navigation } ){
 
                         
                         <View style={styles.postFooter}>
+                            <View style={styles.postFooterAnswers} >
+                                <FontAwesome name={item.answer_count > 0 ? "comments" : "comments-o"} size={27} color="#622565" />
+                                <Text style={styles.textPostFooterScore}>{item.answer_count}</Text>
+                            </View>
+
                             <View style={styles.postFooterScore}>
                                 <TouchableOpacity onPress={() => likeItem(item,'postagem')} style={styles.postFooterButton}>
-                                    <FontAwesome name={item.liked === true ? "heart" : "heart-o"} size={25} color="#622565" />
+                                    <FontAwesome name={item.liked === true ? "heart" : "heart-o"} size={23} color="#622565" />
                                     <Text style={styles.textPostFooterScore}>
                                         {item.score.length}
                                     </Text>
