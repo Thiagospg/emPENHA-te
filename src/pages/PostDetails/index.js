@@ -29,6 +29,8 @@ export default function PostDetails({route, navigation}){
     
     //Opening modal report
     const openModalReport = async (item,itemType) => {
+        if (item.createdBy === firebase.auth().currentUser.uid) return;
+        
         setItemType(itemType);
         setItem(item);
 
@@ -92,10 +94,16 @@ export default function PostDetails({route, navigation}){
            ]).start(); 
     }
 
+    async function checkForBadWord(text){
+        if(!filterText.haveBadWord(text) && !await filterText.havePersonName(text))
+            return false;
+        else    
+            return true;
+    }
 
     async function addAnswer(){
         if (answerText.trim() !== ''){
-            if (!filterText.havePersonName(answerText.trim()) && !filterText.haveBadWord(answerText.trim())) {
+            if (!await checkForBadWord(answerText.trim())) {
                 await database.collection("posts").doc(route.params.id).collection('answers').add({
                     createdWhen: firebase.firestore.FieldValue.serverTimestamp(),
                     createdBy: firebase.auth().currentUser.uid,
@@ -411,11 +419,17 @@ export default function PostDetails({route, navigation}){
                 { 
                     answer.map((item, index) => (
                         <View key={index}>
-                            <View style={styles.boxListAllAnswers}>
-                                <TouchableOpacity style={styles.boxListAnswer} onPress={()=>openModalReport(item,'resposta')}>
-                                    <Text style={styles.textListAnswer}>{item.description}</Text>
-                                </TouchableOpacity>
-
+                            <View style={[styles.boxListAllAnswers, {justifyContent:item.createdBy === firebase.auth().currentUser.uid ? 'flex-end' : 'flex-start'}]}>
+                                {
+                                    item.createdBy === firebase.auth().currentUser.uid
+                                    ?
+                                        null
+                                    :
+                                    <TouchableOpacity style={styles.boxListAnswer} onPress={()=> openModalReport(item,'resposta')}>
+                                        <Text style={styles.textListAnswer}>{item.description}</Text>
+                                    </TouchableOpacity>
+                                }
+                                
                                 <View style={styles.boxListAnswerLike}>
                                     <TouchableOpacity activeOpacity={0.6} onPress={() => likeItem(item,'resposta')}>
                                         <FontAwesome name={item.liked === true ? "heart" : "heart-o"} size={25} color="#622565" />
@@ -423,12 +437,21 @@ export default function PostDetails({route, navigation}){
                                             {item.score.length}
                                         </Text>
                                     </TouchableOpacity>
-                                    
-                                    
                                 </View>
+                            
+                                {
+                                    item.createdBy === firebase.auth().currentUser.uid
+                                    ?
+                                    <TouchableOpacity style={styles.boxListAnswer} onPress={()=>openModalReport(item,'resposta')}>
+                                        <Text style={styles.textListAnswer}>{item.description}</Text>
+                                    </TouchableOpacity>
+                                    :
+                                        null
+                                }
+                            
                             </View>
                             <View style={styles.boxListAnswerDate}>
-                                <Text style={styles.textListAnswerDate}>
+                                <Text style={[styles.textListAnswerDate, {textAlign: item.createdBy === firebase.auth().currentUser.uid ? 'right' : 'left'}]}>
                                     {moment.unix(item.createdWhen.seconds).format("DD/MM/YYYY HH:mm")}
                                 </Text>
                             </View>

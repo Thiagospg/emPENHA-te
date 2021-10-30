@@ -123,13 +123,14 @@ const styles = StyleSheet.create({
     boxListAllAnswers:{
         width: '100%',
         flexDirection:'row',
-        flex:1
+        flex:1,
     },
     boxListAnswer:{
         backgroundColor: '#e4aae9',
         padding:10,
         borderRadius: 10,
-        flex: 1,
+        flex: 0.9,
+
     },
     textListAnswer:{
         fontSize: 14,
@@ -148,13 +149,10 @@ const styles = StyleSheet.create({
     boxListAnswerDate:{
         width:'100%',
         paddingBottom:15,
-       
     },
     textListAnswerDate:{
-        paddingLeft:10,
-        fontSize:10,
-        borderBottomWidth:0.3,
-        borderBottomColor: '#622565'
+        paddingHorizontal:10,
+        fontSize:12,
     },
     textAnswerError:{
         fontSize: 13,

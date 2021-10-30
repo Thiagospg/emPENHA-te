@@ -9,9 +9,16 @@ export default function NewPost({route, navigation}){
     const [postDescription, setPostDescription] = useState(route.params.description ? route.params.description : '');
     const [postTitle, setPostTitle] = useState(route.params.title ? route.params.title : '');
 
+    async function checkForBadWord(text){
+        if(!filterText.haveBadWord(text) && !await filterText.havePersonName(text))
+            return false;
+        else    
+            return true;
+    }
+
     async function addPost(){
         if (postDescription.trim() && postTitle.trim() !== ''){
-            if (!filterText.havePersonName(postDescription.trim()) && !filterText.havePersonName(postTitle.trim()) && !filterText.haveBadWord(postDescription.trim()) && !filterText.haveBadWord(postTitle.trim())) {
+            if (!await checkForBadWord(postDescription.trim()) && !await checkForBadWord(postTitle.trim())) {
                 await database.collection("posts").add({
                     createdWhen: firebase.firestore.FieldValue.serverTimestamp(),
                     createdBy: firebase.auth().currentUser.uid,
@@ -39,7 +46,7 @@ export default function NewPost({route, navigation}){
 
     async function updPost(){
         if (postDescription.trim() && postTitle.trim() !== ''){
-            if (!filterText.havePersonName(postDescription.trim()) && !filterText.havePersonName(postTitle.trim()) && !filterText.haveBadWord(postDescription.trim()) && !filterText.haveBadWord(postTitle.trim())) {
+            if (!await checkForBadWord(postDescription.trim()) && !await checkForBadWord(postTitle.trim())) {
                 await database.collection("posts").doc(route.params.id).update({
                     description: postDescription,
                     title: postTitle,
