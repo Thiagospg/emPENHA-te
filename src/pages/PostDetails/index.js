@@ -1,7 +1,7 @@
-import  React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, SafeAreaView, ScrollView, TouchableOpacity, Alert, Animated } from 'react-native';
+import  React, { useState, useEffect, useRef } from 'react';
+import { View, Text, TextInput, SafeAreaView, ScrollView, TouchableOpacity, Alert, Animated, ActivityIndicator } from 'react-native';
 import { useIsFocused } from "@react-navigation/native";
-import { FontAwesome, Ionicons, Feather } from '@expo/vector-icons';
+import { FontAwesome, Ionicons, AntDesign } from '@expo/vector-icons';
 import firebase from '../../config/firebaseconfig';
 import filterText from '../../lib/filterText';
 import Header from '../../components/Header';
@@ -26,16 +26,22 @@ export default function PostDetails({route, navigation}){
     const [postClosed, setPostClosed] = useState(route.params.closed);
     const [likeCount, setLikeCount] = useState(route.params.score.length);
     const isFocused = useIsFocused();
-    
+    const [currentUser, setCurrentUser] = useState(firebase.auth().currentUser.uid);
+    const [isLoading, setIsLoading] = useState(false);
+    const [loaded, setLoaded] = useState(false);
+    const scrollListRef = useRef();
+    const [isButtonToEndVisible,setIsButtonToEndVisible] = useState(true);
+    const [isButtonToBeginVisible,setIsButtonToBeginVisible] = useState(false);
+
     //Opening modal report
     const openModalReport = async (item,itemType) => {
-        if (item.createdBy === firebase.auth().currentUser.uid) return;
+        if (item.createdBy === currentUser) return;
         
         setItemType(itemType);
         setItem(item);
 
         if (itemType === 'resposta') {
-            await database.collection("posts").doc(route.params.id).collection('answers').doc(item.id).collection('reports').doc(firebase.auth().currentUser.uid).get()
+            await database.collection("posts").doc(route.params.id).collection('answers').doc(item.id).collection('reports').doc(currentUser).get()
             .then(function(querySnapshot) {
                 if (querySnapshot.data() !== undefined) {
                     setAlreadyReported(true)
@@ -45,7 +51,7 @@ export default function PostDetails({route, navigation}){
             });
         } else {
             setIsModalMenuVisible(false)
-            await database.collection("posts").doc(item.id).collection('reports').doc(firebase.auth().currentUser.uid).get()
+            await database.collection("posts").doc(item.id).collection('reports').doc(currentUser).get()
             .then(function(querySnapshot) {
                 if (querySnapshot.data() !== undefined) {
                     setAlreadyReported(true)
@@ -102,32 +108,44 @@ export default function PostDetails({route, navigation}){
     }
 
     async function addAnswer(){
-        if (answerText.trim() !== ''){
-            if (!await checkForBadWord(answerText.trim())) {
-                await database.collection("posts").doc(route.params.id).collection('answers').add({
-                    createdWhen: firebase.firestore.FieldValue.serverTimestamp(),
-                    createdBy: firebase.auth().currentUser.uid,
-                    description: answerText,
-                    score: []
-                }).then(() => {
-                    setAnswerText('');
-                    setAnswerError(null);
-                    animateSendButton();
-                }).catch((error) => {
-                    console.error("Error add document: ", error);
-                });
+        let isClosed = false;
+
+        await database.collection('posts').doc(route.params.id).get().then((querySnapshot) => {
+            querySnapshot
+                isClosed = querySnapshot.data().closed;
+        });
+
+        if(!isClosed) {
+            if (answerText.trim() !== ''){
+                if (!await checkForBadWord(answerText.trim())) {
+                    await database.collection("posts").doc(route.params.id).collection('answers').add({
+                        createdWhen: firebase.firestore.FieldValue.serverTimestamp(),
+                        createdBy: currentUser,
+                        description: answerText,
+                        score: []
+                    }).then(() => {
+                        setAnswerText('');
+                        setAnswerError(null);
+                        animateSendButton();
+                        scrollListRef.current.scrollTo({x:0, y:0,animated:true});
+                    }).catch((error) => {
+                        console.error("Error add document: ", error);
+                    });
+                } else {
+                    Alert.alert('Não foi possível publicar a resposta','Não é possível criar respostas com palavras que firam o anonimato ou que sejam de baixo calão')
+                }
             } else {
-                Alert.alert('Não foi possível criar a postagem','Não é possível criar postagens com palavras que firam o anonimato ou que sejam de baixo calão')
-            }
+            setAnswerError('Por favor, digite a sua resposta')
+            } 
         } else {
-           setAnswerError('Por favor, digite a sua resposta')
-        }      
+            Alert.alert('Não foi possível publicar a resposta','A postagem foi trancada');
+        }    
     }
 
     //Report a post or answer
     async function reportItem(){
         if (itemType === 'postagem') {
-            await database.collection("posts").doc(route.params.id).collection('reports').doc(firebase.auth().currentUser.uid).set({
+            await database.collection("posts").doc(route.params.id).collection('reports').doc(currentUser).set({
                 reportedWhen: firebase.firestore.FieldValue.serverTimestamp(),
             }).then(() => {
                 console.log("Document successfully written!");
@@ -136,7 +154,7 @@ export default function PostDetails({route, navigation}){
                 console.error("Error writing document: ", error);
             });
         } else {
-            await database.collection("posts").doc(route.params.id).collection('answers').doc(item.id).collection('reports').doc(firebase.auth().currentUser.uid).set({
+            await database.collection("posts").doc(route.params.id).collection('answers').doc(item.id).collection('reports').doc(currentUser).set({
                 reportedWhen: firebase.firestore.FieldValue.serverTimestamp(),
             }).then(() => {
                 console.log("Document successfully written!");
@@ -153,10 +171,10 @@ export default function PostDetails({route, navigation}){
         if (itemType === 'postagem') {
             if (postLiked) {
                 await database.collection("posts").doc(route.params.id).update({
-                    score: firebase.firestore.FieldValue.arrayRemove(firebase.auth().currentUser.uid)
+                    score: firebase.firestore.FieldValue.arrayRemove(currentUser)
                 })
                 .then(() => {
-                    let indexArray = postScore.indexOf(firebase.auth().currentUser.uid);
+                    let indexArray = postScore.indexOf(currentUser);
                     if (indexArray > -1) {
                         postScore.splice(indexArray, 1);
                     }
@@ -169,10 +187,10 @@ export default function PostDetails({route, navigation}){
                 });
             }else {
                 await database.collection("posts").doc(route.params.id).update({
-                    score: firebase.firestore.FieldValue.arrayUnion(firebase.auth().currentUser.uid)
+                    score: firebase.firestore.FieldValue.arrayUnion(currentUser)
                 })
                 .then(() => {
-                    postScore.push(firebase.auth().currentUser.uid);
+                    postScore.push(currentUser);
                     setPostLiked(true);
                     setLikeCount(likeCount + 1)
                     console.log("Document successfully written!");
@@ -184,7 +202,7 @@ export default function PostDetails({route, navigation}){
         } else {
             if (item.liked) {
                 await database.collection("posts").doc(route.params.id).collection('answers').doc(item.id).update({
-                    score: firebase.firestore.FieldValue.arrayRemove(firebase.auth().currentUser.uid)
+                    score: firebase.firestore.FieldValue.arrayRemove(currentUser)
                 })
                 .then(() => {
                     console.log("Document successfully removed!");
@@ -194,7 +212,7 @@ export default function PostDetails({route, navigation}){
                 });
             }else {
                 await database.collection("posts").doc(route.params.id).collection('answers').doc(item.id).update({
-                    score: firebase.firestore.FieldValue.arrayUnion(firebase.auth().currentUser.uid)
+                    score: firebase.firestore.FieldValue.arrayUnion(currentUser)
                 })
                 .then(() => {
                     console.log("Document successfully written!");
@@ -274,16 +292,35 @@ export default function PostDetails({route, navigation}){
         }  
     }
 
+    //Check if scroll is close to bottom
+    const isCloseToBottom = ({layoutMeasurement, contentOffset, contentSize}) => {
+        const paddingToBottom = 20;
+        return layoutMeasurement.height + contentOffset.y >=
+          contentSize.height - paddingToBottom;
+    }
+
+    //Check if scroll is close to top
+    const isCloseToTop = ({layoutMeasurement, contentOffset, contentSize}) => {
+        const paddingToTop = 20;
+        return contentOffset.y <=
+        paddingToTop;
+    }
+
     //Loading answers
     useEffect(() =>{
-        database.collection('posts').doc(route.params.id).collection('answers').orderBy('createdWhen','desc').onSnapshot({ includeMetadataChanges: true },(query)=>{
+        setIsLoading(true);
+        setLoaded(false);
+
+        database.collection('posts').doc(route.params.id).collection('answers').orderBy('createdWhen','asc').onSnapshot({ includeMetadataChanges: true },(query)=>{
             const list = [];
-            
+        
             query.forEach((doc)=> {
-                list.push({...doc.data(), id: doc.id, liked: doc.data().score.includes(firebase.auth().currentUser.uid) ? true : false});
+                list.push({...doc.data(), id: doc.id, liked: doc.data().score.includes(currentUser) ? true : false});
             });
             if (!query.metadata.hasPendingWrites){
                 setAnswer(list);
+                setIsLoading(false);
+                setLoaded(true);
             }
         });
     },[]);
@@ -292,7 +329,6 @@ export default function PostDetails({route, navigation}){
     useEffect(() => { 
         database.collection('posts').doc(route.params.id).get().then((querySnapshot) => {
             querySnapshot
-                // doc.data() is never undefined for query doc snapshots
                 setLikeCount(querySnapshot.data().score_count);
         });
     }, [ isFocused]);
@@ -340,7 +376,7 @@ export default function PostDetails({route, navigation}){
                 <SafeAreaView style={{flex: 1, alignItems: 'flex-end'}}>
                     <View style={styles.modalMenuView}>
                         { //Delete or close the post
-                            route.params.creatorId === firebase.auth().currentUser.uid
+                            route.params.creatorId === currentUser
                             ?
                                 answer.length === 0 
                                 ?
@@ -362,7 +398,7 @@ export default function PostDetails({route, navigation}){
                         }
 
                         { //Edit the post
-                            route.params.creatorId === firebase.auth().currentUser.uid
+                            route.params.creatorId === currentUser
                             ?
                                 <TouchableOpacity onPressIn={() =>setIsModalMenuVisible(false)} onPress={() => navigation.navigate("NewPost",{
                                         operation:"upd", 
@@ -384,7 +420,7 @@ export default function PostDetails({route, navigation}){
                         }
 
                         { //Report the post
-                            route.params.creatorId !== firebase.auth().currentUser.uid
+                            route.params.creatorId !== currentUser
                             ?
                                 <TouchableOpacity style={{flex:1, justifyContent:'center'}} onPress={()=>openModalReport(route.params,'postagem')}>
                                     <Text style={styles.textOptionButton}>Denunciar</Text>
@@ -400,28 +436,51 @@ export default function PostDetails({route, navigation}){
                 <Text style={styles.textPostTitle}>{route.params.title}</Text>
             </View>
 
-            <ScrollView style={styles.boxPostContent} showsVerticalScrollIndicator={false}>
+            
+            <ScrollView 
+                onScroll={(event) => { 
+                    if (!isCloseToBottom(event.nativeEvent)) {
+                        setIsButtonToEndVisible(true);
+                    } else {
+                        setIsButtonToEndVisible(false);
+                    }
+
+                    if (!isCloseToTop(event.nativeEvent)) {
+                        setIsButtonToBeginVisible(true);
+                    } else {
+                        setIsButtonToBeginVisible(false);
+                    }
+                }} 
+                ref={scrollListRef} style={styles.boxPostContent} showsVerticalScrollIndicator={false}>
                 <Text style={styles.textPostContent}>{route.params.description}</Text>
 
                 <TouchableOpacity activeOpacity={0.6} onPress={() => likeItem(route.params,'postagem')} style={styles.buttonPostLike}>
                     <FontAwesome name={postLiked === true ? "heart" : "heart-o"} size={25} color="#622565" style={{alignSelf:'flex-start'}} />
                     <Text>{likeCount}</Text>
                  </TouchableOpacity>
+
                 { 
-                    answer.length === 0 
-                    ? 
-                    <Text style={styles.textBorderContent}>Nenhuma resposta ainda. Deixe a sua ;)</Text>
+                    isLoading
+                    ?
+                        <Text style={styles.textBorderContent}></Text>
                     :
-                    <Text style={styles.textBorderContent}>Respostas</Text> 
+                        loaded
+                        ?
+                            answer.length === 0
+                            ? 
+                                <Text style={styles.textBorderContent}>Nenhuma resposta ainda. Deixe a sua ;)</Text>
+                            :
+                                <Text style={styles.textBorderContent}>Respostas</Text> 
+                        :
+                            <Text style={styles.textBorderContent}></Text>
                 }
-                
                 
                 { 
                     answer.map((item, index) => (
                         <View key={index}>
-                            <View style={[styles.boxListAllAnswers, {justifyContent:item.createdBy === firebase.auth().currentUser.uid ? 'flex-end' : 'flex-start'}]}>
+                            <View style={[styles.boxListAllAnswers, {justifyContent:item.createdBy === currentUser ? 'flex-end' : 'flex-start'}]}>
                                 {
-                                    item.createdBy === firebase.auth().currentUser.uid
+                                    item.createdBy === currentUser
                                     ?
                                         null
                                     :
@@ -440,7 +499,7 @@ export default function PostDetails({route, navigation}){
                                 </View>
                             
                                 {
-                                    item.createdBy === firebase.auth().currentUser.uid
+                                    item.createdBy === currentUser
                                     ?
                                     <TouchableOpacity style={styles.boxListAnswer} onPress={()=>openModalReport(item,'resposta')}>
                                         <Text style={styles.textListAnswer}>{item.description}</Text>
@@ -460,12 +519,40 @@ export default function PostDetails({route, navigation}){
                 }
             </ScrollView>
             
+            <View style={{flexDirection:'row', maxHeight:35}}>
             {
-                postClosed 
+                isButtonToBeginVisible
                 ?
-                <Text style={styles.textClosedPost}>Postagem trancada</Text>
+                    <View style={{flex:0.5, marginLeft: 18, paddingBottom:10, alignItems:'flex-start'}}>
+                        <FontAwesome style={{paddingHorizontal:6,backgroundColor:'#e4aae9',width:30, height:30, borderRadius:10}} onPress={() => scrollListRef.current.scrollTo({x:0, y:0,animated:true})} name="angle-double-up" size={28} color="#622565" /> 
+                    </View>
                 :
-                <Text style={styles.textInformation}>Deixe uma resposta</Text>
+                    <View style={{flex:0.5, marginLeft: 18, paddingBottom:10, alignItems:'flex-start'}}/>
+            }
+
+            {
+                isButtonToEndVisible
+                ?
+                    <View style={{flex:0.5, marginRight: 18, paddingBottom:10, alignItems:'flex-end'}}>
+                        <FontAwesome style={{paddingHorizontal:6,backgroundColor:'#e4aae9',width:30, height:30, borderRadius:10}} onPress={() => scrollListRef.current.scrollToEnd({animated:true})} name="angle-double-down" size={28} color="#622565" /> 
+                    </View>
+                :
+                    <View style={{flex:0.5, marginRight: 18, paddingBottom:10, alignItems:'flex-end'}}/>
+            }
+
+            
+            </View>
+
+            {
+                isLoading 
+                ?
+                    <ActivityIndicator animating={isLoading} color="#622565" />
+                :
+                    postClosed 
+                    ?
+                    <Text style={styles.textClosedPost}>Postagem trancada</Text>
+                    :
+                    <Text style={styles.textInformation}>Deixe uma resposta</Text>
             }
 
             {

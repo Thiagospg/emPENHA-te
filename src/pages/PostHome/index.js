@@ -21,7 +21,7 @@ export default function PostHome( { route, navigation } ){
     const [isModalOrderByVisible, setIsModalOrderByVisible] = useState(false);
     const responseListener = useRef();
     const notificationListener = useRef();
-    const flatListRef = React.useRef();
+    const flatListRef = useRef();
     const [change, setChange] = useState(false);
     const isFocused = useIsFocused();
     const [refreshing, setRefreshing] = useState(false);
@@ -256,7 +256,7 @@ export default function PostHome( { route, navigation } ){
     return(
         <SafeAreaView style={styles.container}>
 
-            <Header leftIcon={'filter'} rightIcon={'log-out'} title={'Publicações'} leftAction={() => setIsModalOrderByVisible(true)} rightAction={() => handleDeslogin()} />
+            <Header leftIcon={'filter'} rightIcon={'log-out'} title={'Publicações'} leftAction={() => setIsModalOrderByVisible(true)} rightAction={async() => await handleDeslogin()} />
 
             <Modal 
             coverScreen={false}
@@ -368,7 +368,7 @@ export default function PostHome( { route, navigation } ){
                 >
                     <Text style={styles.iconButton}>+</Text>
                 </TouchableOpacity>
-                </View>
+            </View>
         </SafeAreaView>
     )
 }

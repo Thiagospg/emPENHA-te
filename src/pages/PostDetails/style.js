@@ -187,6 +187,16 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         color: '#f5cec6',
         padding: 8
+    },
+    buttonToTop:{
+        bottom: 30,
+        marginHorizontal: 10,
+        position: 'absolute',
+        width: 40,
+        height: 40,
+        backgroundColor: '#622565',
+        borderRadius: 50,
+       
     }
 });
 

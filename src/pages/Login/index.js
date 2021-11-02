@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React,{ useState, useEffect } from 'react';
 import styles from './style';
 import firebase from '../../config/firebaseconfig';
 import { Feather } from '@expo/vector-icons';
@@ -11,7 +11,7 @@ import { View,
          TextInput,
          Image,
          TouchableOpacity,
-         Alert
+         KeyboardAvoidingView
         } from 'react-native';
 
 export default function Login({ route, navigation }){
@@ -118,8 +118,10 @@ export default function Login({ route, navigation }){
     //Auto login based on previously account logged
     useEffect(()=>{
         firebase.auth().onAuthStateChanged((user) => {
-            if (user != null) 
-                navigation.navigate("PostHome", {userId: user.uid})
+            if (user) {
+                if (user.emailVerified)
+                    navigation.navigate("PostHome", {userId: user.uid})
+            }
         });
     },[]);
 

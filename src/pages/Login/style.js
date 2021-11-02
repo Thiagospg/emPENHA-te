@@ -6,16 +6,16 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: "#f9fafd",
-        paddingTop:50
+        paddingTop:80
         
     },
     boxLogo:{
-        width: '100%',
+        width: '90%',
         alignItems: 'center',
-        marginBottom: "3%",
+        marginBottom: "2%",
     },
     imageLogo:{
-        width: '78%',
+        width: '100%',
         resizeMode: 'contain',
     },
     boxInput:{
