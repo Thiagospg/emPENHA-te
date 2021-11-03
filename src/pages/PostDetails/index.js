@@ -127,7 +127,7 @@ export default function PostDetails({route, navigation}){
                         setAnswerText('');
                         setAnswerError(null);
                         animateSendButton();
-                        scrollListRef.current.scrollTo({x:0, y:0,animated:true});
+                        scrollListRef.current.scrollToEnd({animated:true});
                     }).catch((error) => {
                         console.error("Error add document: ", error);
                     });

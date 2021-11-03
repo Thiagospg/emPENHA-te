@@ -118,9 +118,14 @@ export default function Login({ route, navigation }){
     //Auto login based on previously account logged
     useEffect(()=>{
         firebase.auth().onAuthStateChanged((user) => {
+            console.log(user.providerData[0].providerId)
             if (user) {
-                if (user.emailVerified)
-                    navigation.navigate("PostHome", {userId: user.uid})
+                if (user.providerData[0].providerId === 'password') {
+                    if (user.emailVerified)
+                        navigation.navigate("PostHome", {userId: user.uid});
+                } else {
+                    navigation.navigate("PostHome", {userId: user.uid});
+                }
             }
         });
     },[]);
