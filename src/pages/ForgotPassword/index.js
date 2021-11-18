@@ -14,7 +14,6 @@ export default function ForgotPassword({ navigation }){
     const [redefineError, setRedefineError] = useState(null)
 
     const handlePasswordRedefinition = (email) => {
-
         firebase.auth().sendPasswordResetEmail(email)
         .then(() => {
             console.log('Redefined')
@@ -29,6 +28,10 @@ export default function ForgotPassword({ navigation }){
             switch(errorCode){
                 case 'auth/invalid-email':
                     setRedefineError('*Preencha o email corretamente')
+                    break;
+
+                case 'auth/user-not-found':
+                    setRedefineError('*O email informado não pertence a nenhuma conta')
                     break;
                 }
         });
